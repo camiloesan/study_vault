@@ -1,0 +1,26 @@
+{
+    "helloWorld": "Hello World!",
+    "@helloWorld": {
+        "description": "The conventional newborn programmer greeting"
+    },
+
+    "continueString": "Continue",
+    "@continueString": {
+        "description": "Continue button"
+    },
+
+    "signUp": "Sign up now",
+    "@signUp": {
+        "description": "Sign up button"
+    },
+
+    "logIn": "Log in",
+    "@logIn": {
+        "description": "Log in"
+    },
+
+    "emailRequestInfo": "You will need to enter your email address:",
+    "@emailRequestInfo": {
+        "description": "Email request for text form"
+    }
+}

@@ -1,0 +1,7 @@
+{
+    "helloWorld": "¡Hola Mundo!",
+    "continueString": "Continuar",
+    "signUp": "Registrarse ahora",
+    "logIn": "Iniciar sesión",
+    "emailRequestInfo": "Necesitarás ingresar tu dirección de correo electrónico:"
+}
