@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:study_vault/pages/sign_up.dart';
 
 class EmailVerification extends StatefulWidget {
   const EmailVerification({super.key});
@@ -23,27 +24,27 @@ class _EmailVerificationState extends State<EmailVerification> {
                 child: Text(
                   AppLocalizations.of(context)!.emailRequestInfo,
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600
-                  ),
+                      fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
-          
               const SizedBox(height: 10),
-
               TextFormField(
                 decoration: const InputDecoration(
                   border: UnderlineInputBorder(),
                   labelText: 'Enter your email',
                 ),
               ),
-              
               const SizedBox(height: 20),
-
-              ElevatedButton(onPressed: () {},
-              child: Text(
-                AppLocalizations.of(context)!.continueString)
-              ),
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignUp(),
+                      ),
+                    );
+                  },
+                  child: Text(AppLocalizations.of(context)!.continueString)),
             ],
           ),
         ),
