@@ -6,9 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class LandingLaunch extends StatelessWidget {
   const LandingLaunch({super.key});
 
-  void _go_email_verification(BuildContext context) {
-
-  }
+  void _go_email_verification(BuildContext context) {}
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +18,10 @@ class LandingLaunch extends StatelessWidget {
             SizedBox(
               height: 165,
               child: Image.asset('assets/images/logor.png'),
-               
             ),
-
-            Text("Small description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-
+            Text("Small description",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
             const Spacer(),
-
             Transform.scale(
               scale: 1.2,
               child: ElevatedButton(
@@ -44,9 +39,7 @@ class LandingLaunch extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 14),
-
             Transform.scale(
               scale: 1.2,
               child: TextButton(
@@ -64,7 +57,6 @@ class LandingLaunch extends StatelessWidget {
                 ),
               ),
             ),
-
             const Spacer(),
           ],
         ),
