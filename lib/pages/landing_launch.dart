@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_vault/pages/email_verification.dart';
+import 'package:study_vault/pages/login.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LandingLaunch extends StatelessWidget {
@@ -53,7 +54,7 @@ class LandingLaunch extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const EmailVerification(),
+                      builder: (context) => const Login(),
                     ),
                   );
                 },
