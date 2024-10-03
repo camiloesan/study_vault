@@ -13,58 +13,45 @@ class Login extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Center(
                 child: SizedBox(
                   height: 100,
                   child: Image.asset('assets/images/logor.png'),
                 ),
               ),
-
               const SizedBox(height: 10),
-
-              Center(
-                child: const Text(
+              const Center(
+                child: Text(
                   'Log in',
                   style: TextStyle(
                     fontSize: 20,
                   ),
                 ),
               ),
-
               const SizedBox(height: 40),
-
               const Text(
                 'Email',
                 style: TextStyle(fontSize: 14),
               ),
-
               const SizedBox(height: 8),
-
-              TextField(
-                decoration: const InputDecoration(
+              const TextField(
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                 ),
               ),
-
               const SizedBox(height: 20),
-
               const Text(
                 'Password',
                 style: TextStyle(fontSize: 14),
               ),
-
               const SizedBox(height: 8),
-
-              TextField(
-                decoration: const InputDecoration(
+              const TextField(
+                decoration: InputDecoration(
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
               ),
-
               const SizedBox(height: 40),
-
               Center(
                 child: ElevatedButton(
                   onPressed: () {},
