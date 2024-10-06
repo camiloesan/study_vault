@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:study_vault/pages/post_creation.dart';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -44,17 +45,24 @@ class _ChannelContentState extends State<ChannelContent> {
     fetchData();
   }
 
+  void createNewPost() {
+    showDialog(context: context, builder: (context) {
+      return const PostCreation();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isStudent = userType == Constants.studentType;
 
     return Scaffold(
+      
       appBar: AppBar(
         title: Text(widget.channel.name),
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(14.0),
+          padding: const EdgeInsets.only(left: 14.0, right: 14.0),
           child: Column(
             children: [
               Text(
@@ -82,7 +90,7 @@ class _ChannelContentState extends State<ChannelContent> {
                       title: Text(channelPosts[index].title),
                       contentPadding: const EdgeInsets.all(8.0),
                       subtitle: Text("${channelPosts[index].description}\nPublished on: ${channelPosts[index].publishDate}"),
-                      
+                      onTap: () {},
                     );
                   },
                   separatorBuilder: (context, index) {
@@ -103,7 +111,7 @@ class _ChannelContentState extends State<ChannelContent> {
         null
         : 
         FloatingActionButton(
-          onPressed: () {},
+          onPressed: () => createNewPost(),
           child: const Icon(Icons.add),
         ),
       
