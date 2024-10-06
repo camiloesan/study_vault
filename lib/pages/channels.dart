@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_vault/pages/channel_content.dart';
 import 'dart:convert';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/utils/constants.dart';
@@ -131,7 +132,7 @@ class _ChannelsState extends State<Channels> {
   }
 
   void onChannelTap(Channel channel) {
-    // Example: Navigator.push(context, MaterialPageRoute(builder: (context) => ChannelDetails(channel)));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ChannelContent(channel: channel)));
   }
 
   Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
@@ -267,8 +268,9 @@ class _ChannelsState extends State<Channels> {
                                       }
                                     }
                                   },
-                                  child: const Text('Unsubscribe')),
-                              onTap: () {},
+                                  child: const Text('Unsubscribe')
+                                ),
+                              onTap: () => onChannelTap(subscribedChannels[index]),
                             );
                           },
                         ),
@@ -308,7 +310,7 @@ class _ChannelsState extends State<Channels> {
                         ),
                       ]
                     : [
-                        // My channels (non-student)
+                        // My channels (professor)
                         ListView.builder(
                           itemCount: myChannels.length,
                           itemBuilder: (context, index) {
@@ -323,11 +325,11 @@ class _ChannelsState extends State<Channels> {
                                       '${myChannels[index].creatorName} ${myChannels[index].creatorLastName}')
                                 ],
                               ),
-                              onTap: () {},
+                              onTap: () => onChannelTap(myChannels[index]),
                             );
                           },
                         ),
-                        // Subscribed channels (non-student)
+                        // Subscribed channels (professor)
                         ListView.builder(
                           itemCount: subscribedChannels.length,
                           itemBuilder: (context, index) {
@@ -345,11 +347,11 @@ class _ChannelsState extends State<Channels> {
                               trailing: ElevatedButton(
                                   onPressed: () {},
                                   child: const Text('Unsubscribe')),
-                              onTap: () {},
+                              onTap: () => onChannelTap(subscribedChannels[index]),
                             );
                           },
                         ),
-                        // All channels (non-student)
+                        // All channels (professor)
                         ListView.builder(
                           itemCount: allChannels.length,
                           itemBuilder: (context, index) {
