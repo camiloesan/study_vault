@@ -4,6 +4,7 @@ import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -17,6 +18,12 @@ class _LoginState extends State<Login> {
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
 
+  String hashPassword(String password) {
+    var bytes = utf8.encode(password);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
   Future<void> _login() async {
     final email = _emailController.text;
     final password = _passwordController.text;
@@ -28,11 +35,12 @@ class _LoginState extends State<Login> {
       return;
     }
 
+    final hashedPassword = hashPassword(password);
     final url = Uri.parse('http://127.0.0.1:8080/login');
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       'email': email,
-      'password': password,
+      'password': hashedPassword,
     });
 
     try {
