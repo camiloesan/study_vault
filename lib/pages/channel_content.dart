@@ -7,6 +7,9 @@ import 'dart:convert';
 import 'package:study_vault/pojos/post.dart';
 import 'package:study_vault/utils/constants.dart';
 
+import 'package:provider/provider.dart';
+import 'package:study_vault/utils/user_provider.dart';
+
 
 class ChannelContent extends StatefulWidget {
   const ChannelContent({super.key, required this.channel});
@@ -18,8 +21,9 @@ class ChannelContent extends StatefulWidget {
 }
 
 class _ChannelContentState extends State<ChannelContent> {
-  final int userType = 1; // 2 student, 1 professor
-  final int tempUserId = 1;
+  //final int userType = 1; // 2 student, 1 professor
+  //final int tempUserId = 1;
+  
   late List<Post> channelPosts = [];
 
   Future<void> fetchData() async {
@@ -53,6 +57,10 @@ class _ChannelContentState extends State<ChannelContent> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final int? userType = userProvider.userTypeId;
+    final int? userId = userProvider.userId;
+    
     bool isStudent = userType == Constants.studentType;
 
     return Scaffold(
