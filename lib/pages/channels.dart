@@ -4,6 +4,8 @@ import 'package:study_vault/pages/channel_content.dart';
 import 'dart:convert';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/utils/constants.dart';
+import 'package:provider/provider.dart';
+import 'package:study_vault/utils/user_provider.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -17,18 +19,18 @@ class _ChannelsState extends State<Channels> {
   late List<Channel> subscribedChannels = [];
   late List<Channel> allChannels = [];
 
-  final int userType = 2; // 2 student, 1 professor
-  final int tempUserId = 1;
+  //final int userType = 2; // 2 student, 1 professor
+  //final int tempUserId = 1;
 
-  Future<void> fetchData() async {
+  Future<void> fetchData(int? userId, int? userType) async {
     bool isStudent = userType == Constants.studentType;
 
     if (isStudent) {
       final myChannelsResponse =
-          await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/2'));
+          await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
       // replace 1 for user id in session
       final subscribedChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/1'));
+          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
       final allChannelsResponse =
           await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
 
@@ -62,7 +64,7 @@ class _ChannelsState extends State<Channels> {
     } else {
       // replace 1 for user id in session
       final subscribedChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/1'));
+          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
       final allChannelsResponse =
           await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
 
@@ -90,10 +92,10 @@ class _ChannelsState extends State<Channels> {
     }
 
     final myChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/2'));
+        await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
     // replace 1 for user id in session
     final subscribedChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/1'));
+        await http.get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
     final allChannelsResponse =
         await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
 
@@ -128,7 +130,8 @@ class _ChannelsState extends State<Channels> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    fetchData(userProvider.userId, userProvider.userTypeId);
   }
 
   void onChannelTap(Channel channel) {
@@ -185,6 +188,10 @@ class _ChannelsState extends State<Channels> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final int? userType = userProvider.userTypeId;
+    final int? userId = userProvider.userId;
+
     bool isStudent = userType == Constants.studentType;
 
     return Scaffold(
@@ -256,7 +263,7 @@ class _ChannelsState extends State<Channels> {
                                       int channelId =
                                           subscribedChannels[index].channelId;
                                       bool result = await onChannelUnsubscribe(
-                                          tempUserId, channelId);
+                                          userId!, channelId);
 
                                       if (result) {
                                         setState(() {
@@ -294,7 +301,7 @@ class _ChannelsState extends State<Channels> {
                                     int channelId =
                                         allChannels[index].channelId;
                                     bool result = await onChannelSubscribe(
-                                        tempUserId, channelId);
+                                        userId!, channelId);
                                     if (result) {
                                       setState(() {
                                         subscribedChannels
