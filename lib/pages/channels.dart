@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_vault/pages/channel_content.dart';
+import 'package:study_vault/pages/channel_creation.dart';
 import 'dart:convert';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/utils/constants.dart';
@@ -132,6 +133,12 @@ class _ChannelsState extends State<Channels> {
     super.initState();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     fetchData(userProvider.userId, userProvider.userTypeId);
+  }
+
+  void createChannel() {
+    showDialog(context: context, builder: (context) {
+      return const ChannelCreation();
+    });
   }
 
   void onChannelTap(Channel channel) {
@@ -389,7 +396,7 @@ class _ChannelsState extends State<Channels> {
       floatingActionButton: isStudent
           ? null
           : FloatingActionButton(
-              onPressed: () {},
+              onPressed: () => createChannel(),
               child: const Icon(Icons.add),
             ),
       bottomNavigationBar: BottomNavigationBar(items: const [
