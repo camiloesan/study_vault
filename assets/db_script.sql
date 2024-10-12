@@ -29,12 +29,19 @@ create table subscriptions(
     unique(subscription_id) 
 );
 
+create table categories(
+    category_id int not null auto_increment,
+    name varchar(32) not null,
+    primary key(category_id),
+    unique(category_id)
+);
+
 create table channels(
     channel_id int not null auto_increment,
     creator_id int not null,
     name varchar(32) not null,
     description varchar(256),
-    -- todo add category on a catalog
+    category_id int not null,
     primary key(channel_id),
     unique(channel_id)
 );
@@ -80,6 +87,7 @@ add constraint fk_subscriptions_channels foreign key(channel_id) references chan
 
 alter table channels
 add constraint fk_channels_users foreign key(creator_id) references users(user_id) on delete cascade on update cascade;
+add constraint fk_channels_categories foreign key(category_id) references categories(category_id) on delete cascade on update cascade;
 
 alter table posts
 add constraint fk_posts_channels foreign key(channel_id) references channels(channel_id) on delete cascade on update cascade,
@@ -96,12 +104,22 @@ insert into user_types(user_type) values('Student');
 
 insert into users(user_type_id, name, last_name, email, password) values(2, 'Camilo', 'Espejo Sánchez', 'zs21013861@estudiantes.uv.mx', '123456');
 insert into users(user_type_id, name, last_name, email, password) values(1, 'Lizbeth', 'Rodríguez Mesa', 'lizrm@uv.mx', '123456');
+--users with hashed password
+insert into users(user_type_id, name, last_name, email, password) values(1, 'Juan', 'Sánchez Meza', 'juan@uv.mx', 'ed08c290d7e22f7bb324b15cbadce35b0b348564fd2d5f95752388d86d71bcca');
+insert into users(user_type_id, name, last_name, email, password) values(2, 'Alejandra', 'Carabantes Martínez', 'zs21013865@estudiantes.uv.mx', '069fca009882e13e01c6b0559c9b14a4337c4495f83fd720965ec80f0770a699');
 
-insert into channels(creator_id, name, description) values(2, 'Filosofía básica 1', 'Filosofía Básica 1 introduce los conceptos fundamentales de la filosofía, abordando temas como la naturaleza del conocimiento, la realidad, la ética y la lógica.');
-insert into channels(creator_id, name, description) values(2, 'Literatura 4', 'Literatura Básica 1 ofrece una introducción a los principales géneros literarios, como la poesía, la narrativa y el teatro. A través del análisis de obras de diferentes épocas y culturas');
-insert into channels(creator_id, name, description) values(2, 'Matemáticas 101', 'Este curso de Matemáticas 101 cubre los conceptos fundamentales de álgebra, geometría y cálculo, proporcionando las bases necesarias para estudios avanzados.');
-insert into channels(creator_id, name, description) values(2, 'Historia del Arte', 'Historia del Arte explora las principales corrientes artísticas y sus contextos históricos, analizando obras de diferentes períodos y estilos.');
-insert into channels(creator_id, name, description) values(2, 'Ciencias Naturales', 'El curso de Ciencias Naturales aborda los principios básicos de la biología, química y física, fomentando una comprensión integral del mundo natural.');
+insert into categories(name) values('Ingeniería de Requisitos');
+insert into categories(name) values('Arquitectura de Software');
+insert into categories(name) values('Paradigmas de Programación');
+insert into categories(name) values('Estructuras de Datos');
+insert into categories(name) values('Gestión de Proyectos');
+
+insert into channels(creator_id, name, description, category_id) values(2, 'Ingeniería de Requisitos', 'Discusión sobre la recopilación y análisis de requisitos en proyectos de software.', 1);
+insert into channels(creator_id, name, description, category_id) values(2, 'Arquitectura de Software', 'Canal dedicado a los patrones y estilos arquitectónicos en el desarrollo de software.', 2);
+insert into channels(creator_id, name, description, category_id) values(2, 'Paradigmas de Programación', 'Explora los diferentes paradigmas de programación, desde el funcional hasta el orientado a objetos.', 3);
+insert into channels(creator_id, name, description, category_id) values(2, 'Estructuras de Datos', 'Canal sobre estructuras de datos y su aplicación en la resolución de problemas algorítmicos.', 4);
+insert into channels(creator_id, name, description, category_id) values(3, 'Gestión de Proyectos', 'Discusión sobre metodologías y herramientas para la gestión eficiente de proyectos de software.', 5);
 
 insert into subscriptions(user_id, channel_id) values(1, 1);
 insert into subscriptions(user_id, channel_id) values(1, 2);
+insert into subscriptions(user_id, channel_id) values(4, 2);
