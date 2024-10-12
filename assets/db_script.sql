@@ -105,8 +105,8 @@ insert into user_types(user_type) values('Student');
 insert into users(user_type_id, name, last_name, email, password) values(2, 'Camilo', 'Espejo Sánchez', 'zs21013861@estudiantes.uv.mx', '123456');
 insert into users(user_type_id, name, last_name, email, password) values(1, 'Lizbeth', 'Rodríguez Mesa', 'lizrm@uv.mx', '123456');
 --users with hashed password
-insert into users(user_type_id, name, last_name, email, password) values(1, 'Juan', 'Sánchez Meza', 'juan@uv.mx', 'ed08c290d7e22f7bb324b15cbadce35b0b348564fd2d5f95752388d86d71bcca');
-insert into users(user_type_id, name, last_name, email, password) values(2, 'Alejandra', 'Carabantes Martínez', 'zs21013865@estudiantes.uv.mx', '069fca009882e13e01c6b0559c9b14a4337c4495f83fd720965ec80f0770a699');
+insert into users(user_type_id, name, last_name, email, password) values(1, 'Juan', 'Sánchez Meza', 'juan@uv.mx', 'ed08c290d7e22f7bb324b15cbadce35b0b348564fd2d5f95752388d86d71bcca'); --password is juan
+insert into users(user_type_id, name, last_name, email, password) values(2, 'Alejandra', 'Carabantes Martínez', 'zs21013865@estudiantes.uv.mx', '069fca009882e13e01c6b0559c9b14a4337c4495f83fd720965ec80f0770a699'); --password is alejandra
 
 insert into categories(name) values('Ingeniería de Requisitos');
 insert into categories(name) values('Arquitectura de Software');
