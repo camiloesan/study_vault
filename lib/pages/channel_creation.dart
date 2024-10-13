@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_vault/pojos/category.dart';
+import 'package:provider/provider.dart';
+import 'package:study_vault/utils/user_provider.dart';
 
 class ChannelCreation extends StatefulWidget {
   const ChannelCreation({super.key});
@@ -12,7 +14,10 @@ class ChannelCreation extends StatefulWidget {
 
 class _ChannelCreationState extends State<ChannelCreation>{
   late List<Category> categories = [];
-  Category? selectedCategory; 
+  Category? selectedCategory;
+  String channelName = '';
+  String channelDescription = '';
+  String _errorMessage = ''; 
 
   Future<void> fetchCategories() async {
     final response = await http.get(Uri.parse('http://127.0.0.1:8080/categories/all'));
@@ -24,6 +29,36 @@ class _ChannelCreationState extends State<ChannelCreation>{
       });
     } else {
       throw Exception('Failed to load categories');
+    }
+  }
+
+  Future<void> createChannel() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final int userId = userProvider.userId!;
+
+    final url = Uri.parse('http://127.0.0.1:8080/channel/create');
+    final headers = {"Content-Type": "application/json"};
+
+    final body = jsonEncode({
+      'name': channelName,
+      'description': channelDescription,
+      'category_id': selectedCategory?.categoryId,
+      'creator_id': userId
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Channel created successfully!')),
+        );
+      } else {
+        throw Exception('Failed to create channel');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
@@ -53,11 +88,16 @@ class _ChannelCreationState extends State<ChannelCreation>{
                 child: Text('Name'),
               ),
 
-              const TextField(
+              TextField(
                 maxLength: 32,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                 ),
+                onChanged: (value) {
+                setState(() {
+                  channelName = value;
+                });
+              },
               ),
 
               const SizedBox(height: 8.0),
@@ -67,7 +107,7 @@ class _ChannelCreationState extends State<ChannelCreation>{
                 child: Text('Description'),
               ),
 
-              const Expanded(
+              Expanded(
                 child: TextField(
                   textAlignVertical: TextAlignVertical.top,
                   expands: true,
@@ -77,6 +117,11 @@ class _ChannelCreationState extends State<ChannelCreation>{
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
+                  onChanged: (value) {
+                  setState(() {
+                    channelDescription = value;
+                  });
+                },
                 ),
               ),
 
@@ -105,6 +150,17 @@ class _ChannelCreationState extends State<ChannelCreation>{
                   border: OutlineInputBorder(),
                 ),
               ),
+
+              const SizedBox(height: 8.0),
+              
+              if (_errorMessage.isNotEmpty)
+                Text(
+                  _errorMessage,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 14,
+                  ),
+                ),
             
               const SizedBox(height: 32.0),
 
@@ -122,7 +178,13 @@ class _ChannelCreationState extends State<ChannelCreation>{
 
                   ElevatedButton(
                     onPressed: () {
-                      // Lógica para crear el canal
+                      if (channelName.isNotEmpty && selectedCategory != null && channelDescription.isNotEmpty) {
+                        createChannel();
+                      } else {
+                        setState(() {
+                        _errorMessage = 'Please fill all fields';
+                        });
+                      }
                     },
                     child: const Text('Create'),
                   ),
