@@ -41,7 +41,7 @@ class _EmailVerificationState extends State<EmailVerification> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const Channels(),
+                        builder: (context) => const SignUp(),
                       ),
                     );
                   },
