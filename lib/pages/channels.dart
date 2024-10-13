@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_vault/pages/channel_content.dart';
+import 'package:study_vault/pages/channel_creation.dart';
 import 'dart:convert';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/utils/constants.dart';
+import 'package:provider/provider.dart';
+import 'package:study_vault/utils/user_provider.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -16,17 +20,18 @@ class _ChannelsState extends State<Channels> {
   late List<Channel> subscribedChannels = [];
   late List<Channel> allChannels = [];
 
-  final int userType = 1; // 2 student, 1 professor
+  //final int userType = 2; // 2 student, 1 professor
+  //final int tempUserId = 1;
 
-  Future<void> fetchData() async {
+  Future<void> fetchData(int? userId, int? userType) async {
     bool isStudent = userType == Constants.studentType;
 
     if (isStudent) {
       final myChannelsResponse =
-          await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/2'));
+          await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
       // replace 1 for user id in session
       final subscribedChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/1'));
+          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
       final allChannelsResponse =
           await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
 
@@ -59,10 +64,10 @@ class _ChannelsState extends State<Channels> {
       }
     } else {
       // replace 1 for user id in session
-      final subscribedChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/1'));
+      final subscribedChannelsResponse = await http
+          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
       final allChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
+          await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
 
       if (allChannelsResponse.statusCode == 200 &&
           subscribedChannelsResponse.statusCode == 200) {
@@ -88,10 +93,10 @@ class _ChannelsState extends State<Channels> {
     }
 
     final myChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/2'));
+        await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
     // replace 1 for user id in session
     final subscribedChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/1'));
+        await http.get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
     final allChannelsResponse =
         await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
 
@@ -126,16 +131,74 @@ class _ChannelsState extends State<Channels> {
   @override
   void initState() {
     super.initState();
-    fetchData();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    fetchData(userProvider.userId, userProvider.userTypeId);
+  }
+
+  void createChannel() {
+    showDialog(context: context, builder: (context) {
+      return const ChannelCreation();
+    });
   }
 
   void onChannelTap(Channel channel) {
-    print("Tapped on channel: ${channel.name}");
-    // Example: Navigator.push(context, MaterialPageRoute(builder: (context) => ChannelDetails(channel)));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ChannelContent(channel: channel)));
+  }
+
+  Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
+    final url = Uri.parse('http://localhost:8080/unsubscribe');
+    final headers = {"Content-Type": "application/json"};
+
+    final body = jsonEncode({
+      'user_id': userId,
+      'channel_id': channelId,
+    });
+
+    try {
+      final response = await http.delete(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+
+    return false;
+  }
+
+  Future<bool> onChannelSubscribe(int userId, int channelId) async {
+    final url = Uri.parse('http://localhost:8080/subscription');
+    final headers = {"Content-Type": "application/json"};
+
+    final body = jsonEncode({
+      'user_id': userId,
+      'channel_id': channelId,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final int? userType = userProvider.userTypeId;
+    final int? userId = userProvider.userId;
+
     bool isStudent = userType == Constants.studentType;
 
     return Scaffold(
@@ -176,9 +239,52 @@ class _ChannelsState extends State<Channels> {
                                 ],
                               ),
                               trailing: ElevatedButton(
-                                  onPressed: () {},
-                                  child: const Text('Unsubscribe')),
-                              onTap: () {},
+                                  onPressed: () async {
+                                    bool? confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text('Unsubscribe'),
+                                          content: const Text(
+                                              'Are you sure you want to unsubscribe from this channel?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context)
+                                                    .pop(false);
+                                              },
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop(true);
+                                              },
+                                              child: const Text('Continue'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+
+                                    if (confirm == true) {
+                                      int channelId =
+                                          subscribedChannels[index].channelId;
+                                      bool result = await onChannelUnsubscribe(
+                                          userId!, channelId);
+
+                                      if (result) {
+                                        setState(() {
+                                          allChannels
+                                              .add(subscribedChannels[index]);
+                                          subscribedChannels.remove(
+                                              subscribedChannels[index]);
+                                        });
+                                      }
+                                    }
+                                  },
+                                  child: const Text('Unsubscribe')
+                                ),
+                              onTap: () => onChannelTap(subscribedChannels[index]),
                             );
                           },
                         ),
@@ -198,7 +304,19 @@ class _ChannelsState extends State<Channels> {
                                 ],
                               ),
                               trailing: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    int channelId =
+                                        allChannels[index].channelId;
+                                    bool result = await onChannelSubscribe(
+                                        userId!, channelId);
+                                    if (result) {
+                                      setState(() {
+                                        subscribedChannels
+                                            .add(allChannels[index]);
+                                        allChannels.remove(allChannels[index]);
+                                      });
+                                    }
+                                  },
                                   child: const Text('Subscribe')),
                               dense: true,
                             );
@@ -206,7 +324,7 @@ class _ChannelsState extends State<Channels> {
                         ),
                       ]
                     : [
-                        // My channels (non-student)
+                        // My channels (professor)
                         ListView.builder(
                           itemCount: myChannels.length,
                           itemBuilder: (context, index) {
@@ -221,11 +339,11 @@ class _ChannelsState extends State<Channels> {
                                       '${myChannels[index].creatorName} ${myChannels[index].creatorLastName}')
                                 ],
                               ),
-                              onTap: () {},
+                              onTap: () => onChannelTap(myChannels[index]),
                             );
                           },
                         ),
-                        // Subscribed channels (non-student)
+                        // Subscribed channels (professor)
                         ListView.builder(
                           itemCount: subscribedChannels.length,
                           itemBuilder: (context, index) {
@@ -243,11 +361,11 @@ class _ChannelsState extends State<Channels> {
                               trailing: ElevatedButton(
                                   onPressed: () {},
                                   child: const Text('Unsubscribe')),
-                              onTap: () {},
+                              onTap: () => onChannelTap(subscribedChannels[index]),
                             );
                           },
                         ),
-                        // All channels (non-student)
+                        // All channels (professor)
                         ListView.builder(
                           itemCount: allChannels.length,
                           itemBuilder: (context, index) {
@@ -275,10 +393,12 @@ class _ChannelsState extends State<Channels> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: isStudent
+          ? null
+          : FloatingActionButton(
+              onPressed: () => createChannel(),
+              child: const Icon(Icons.add),
+            ),
       bottomNavigationBar: BottomNavigationBar(items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.collections_bookmark_outlined),
