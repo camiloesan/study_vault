@@ -50,7 +50,7 @@ class _LoginState extends State<Login> {
         final jsonResponse = jsonDecode(response.body);
 
         int userId = jsonResponse['user_id'];
-        int userTypeId = jsonResponse['user_type_id']; 
+        int userTypeId = jsonResponse['user_type_id'];
         String name = jsonResponse['name'];
         String lastName = jsonResponse['last_name'];
         String email = jsonResponse['email'];
@@ -62,12 +62,11 @@ class _LoginState extends State<Login> {
           lastName,
           email,
         );
-              
+
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => Channels()),
         );
-
       } else {
         setState(() {
           _errorMessage = 'Invalid email or password';
@@ -97,13 +96,8 @@ class _LoginState extends State<Login> {
                 ),
               ),
               const SizedBox(height: 10),
-<<<<<<< HEAD
-              const Center(
-                child: Text(
-=======
               Center(
                 child: const Text(
->>>>>>> dev
                   'Log in',
                   style: TextStyle(
                     fontSize: 20,
@@ -116,14 +110,9 @@ class _LoginState extends State<Login> {
                 style: TextStyle(fontSize: 14),
               ),
               const SizedBox(height: 8),
-<<<<<<< HEAD
-              const TextField(
-                decoration: InputDecoration(
-=======
               TextField(
                 controller: _emailController,
                 decoration: const InputDecoration(
->>>>>>> dev
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -133,14 +122,9 @@ class _LoginState extends State<Login> {
                 style: TextStyle(fontSize: 14),
               ),
               const SizedBox(height: 8),
-<<<<<<< HEAD
-              const TextField(
-                decoration: InputDecoration(
-=======
               TextField(
                 controller: _passwordController,
                 decoration: const InputDecoration(
->>>>>>> dev
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
