@@ -4,7 +4,6 @@ import 'package:study_vault/pages/login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import '../utils/constants.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -26,7 +25,7 @@ class _SignUpState extends State<SignUp> {
       Uri.parse('http://127.0.0.1:8080/register'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        'email': Constants.email,
+        'email': '',
         'name': _nameController.text,
         'last_name': _lastNameController.text,
         'password': _hashPassword(_passwordController.text),
