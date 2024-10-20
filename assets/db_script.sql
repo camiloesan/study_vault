@@ -22,11 +22,9 @@ create table user_types(
 );
 
 create table subscriptions(
-    subscription_id int not null auto_increment,
     user_id int not null,
     channel_id int not null,
-    primary key(subscription_id),
-    unique(subscription_id)
+    primary key(user_id, channel_id)
 );
 
 create table categories(
