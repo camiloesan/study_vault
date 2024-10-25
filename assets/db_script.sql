@@ -47,12 +47,13 @@ create table channels(
 create table posts(
     post_id int not null auto_increment,
     channel_id int not null,
-    file_id int not null,
+    file_id varchar(36) not null,
     title varchar(32) not null,
     description varchar(256),
     publish_date date not null,
     primary key(post_id),
-    unique(post_id)
+    unique(post_id),
+    unique(file_id)
 );
 
 create table comments(
@@ -66,12 +67,10 @@ create table comments(
 );
 
 create table files(
-    file_id int not null auto_increment,
-    name varchar(8) not null,
-    uri varchar(128) not null,
+    file_id varchar(36) not null,
+    name varchar(32) not null,
     primary key(file_id),
-    unique(file_id),
-    unique(uri)
+    unique(file_id)
 );
 
 -- foreign keys
