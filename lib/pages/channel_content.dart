@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:study_vault/pages/post_creation.dart';
 import 'package:study_vault/pojos/channel.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-import 'package:study_vault/pojos/post.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/constants.dart';
 
@@ -53,7 +49,6 @@ class _ChannelContentState extends State<ChannelContent> {
   @override
   void initState() {
     super.initState();
-    // fetchData();
     fetchGrpcData();
   }
 
@@ -61,7 +56,7 @@ class _ChannelContentState extends State<ChannelContent> {
     showDialog(
         context: context,
         builder: (context) {
-          return const PostCreation();
+          return PostCreation(channel: widget.channel);
         });
   }
 
