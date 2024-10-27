@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:grpc/grpc.dart';
 import 'package:study_vault/pages/post_creation.dart';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:study_vault/pojos/post.dart';
+import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/constants.dart';
 
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
-
 
 class ChannelContent extends StatefulWidget {
   const ChannelContent({super.key, required this.channel});
@@ -23,36 +24,45 @@ class ChannelContent extends StatefulWidget {
 class _ChannelContentState extends State<ChannelContent> {
   //final int userType = 1; // 2 student, 1 professor
   //final int tempUserId = 1;
-  
-  late List<Post> channelPosts = [];
 
-  Future<void> fetchData() async {
-    final channelPostsResponse =
-        await http.get(Uri.parse("http://127.0.0.1:8080/posts/channel/${widget.channel.channelId}"));
+  late List<PostsResponse_PostInfo> channelPosts = [];
 
-    if (channelPostsResponse.statusCode == 200) {
-      List<dynamic> jsonChannelPosts =
-          json.decode(utf8.decode(channelPostsResponse.bodyBytes));
+  Future<void> fetchGrpcData() async {
+    final channel = ClientChannel(
+      'localhost',
+      port: 8081,
+      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+    );
+    final stub = PostsServiceClient(channel);
+
+    try {
+      final response = await stub.getPostsByChannelId(
+        ChannelRequest()..channelId = widget.channel.channelId
+      );
 
       setState(() {
-        channelPosts =
-            jsonChannelPosts.map((post) => Post.fromJson(post)).toList();
+        channelPosts = response.posts;
       });
-    } else {
-      throw Exception('Failed to load data'); // Send an alert instead
+    } catch (e) {
+      print('Caught error: $e');
     }
+
+    await channel.shutdown();
   }
 
   @override
   void initState() {
     super.initState();
-    fetchData();
+    // fetchData();
+    fetchGrpcData();
   }
 
   void createNewPost() {
-    showDialog(context: context, builder: (context) {
-      return const PostCreation();
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const PostCreation();
+        });
   }
 
   @override
@@ -60,11 +70,10 @@ class _ChannelContentState extends State<ChannelContent> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final int? userType = userProvider.userTypeId;
     final int? userId = userProvider.userId;
-    
+
     bool isStudent = userType == Constants.studentType;
 
     return Scaffold(
-      
       appBar: AppBar(
         title: Text(widget.channel.name),
       ),
@@ -83,13 +92,10 @@ class _ChannelContentState extends State<ChannelContent> {
                 textAlign: TextAlign.justify,
                 style: const TextStyle(color: Colors.black54),
               ),
-
               const SizedBox(height: 14),
-              
-              const Text('Posts', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-
+              const Text('Posts',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
               const SizedBox(height: 7),
-
               Expanded(
                 child: ListView.separated(
                   itemCount: channelPosts.length,
@@ -97,7 +103,8 @@ class _ChannelContentState extends State<ChannelContent> {
                     return ListTile(
                       title: Text(channelPosts[index].title),
                       contentPadding: const EdgeInsets.all(8.0),
-                      subtitle: Text("${channelPosts[index].description}\nPublished on: ${channelPosts[index].publishDate}"),
+                      subtitle: Text(
+                          "${channelPosts[index].description}\nPublished on: ${channelPosts[index].publishDate}"),
                       onTap: () {},
                     );
                   },
@@ -113,16 +120,12 @@ class _ChannelContentState extends State<ChannelContent> {
           ),
         ),
       ),
-
       floatingActionButton: isStudent
-        ? 
-        null
-        : 
-        FloatingActionButton(
-          onPressed: () => createNewPost(),
-          child: const Icon(Icons.add),
-        ),
-      
+          ? null
+          : FloatingActionButton(
+              onPressed: () => createNewPost(),
+              child: const Icon(Icons.add),
+            ),
       bottomNavigationBar: BottomNavigationBar(items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.collections_bookmark_outlined),

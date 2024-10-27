@@ -146,7 +146,7 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
-    final url = Uri.parse('http://localhost:8080/unsubscribe');
+    final url = Uri.parse('http://localhost:8082/unsubscribe');
     final headers = {"Content-Type": "application/json"};
 
     final body = jsonEncode({
@@ -170,7 +170,7 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<bool> onChannelSubscribe(int userId, int channelId) async {
-    final url = Uri.parse('http://localhost:8080/subscription');
+    final url = Uri.parse('http://localhost:8082/subscription');
     final headers = {"Content-Type": "application/json"};
 
     final body = jsonEncode({
@@ -179,6 +179,7 @@ class _ChannelsState extends State<Channels> {
     });
 
     try {
+      print('in');
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
@@ -240,47 +241,7 @@ class _ChannelsState extends State<Channels> {
                               ),
                               trailing: ElevatedButton(
                                   onPressed: () async {
-                                    bool? confirm = await showDialog<bool>(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: const Text('Unsubscribe'),
-                                          content: const Text(
-                                              'Are you sure you want to unsubscribe from this channel?'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context)
-                                                    .pop(false);
-                                              },
-                                              child: const Text('Cancel'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop(true);
-                                              },
-                                              child: const Text('Continue'),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-
-                                    if (confirm == true) {
-                                      int channelId =
-                                          subscribedChannels[index].channelId;
-                                      bool result = await onChannelUnsubscribe(
-                                          userId!, channelId);
-
-                                      if (result) {
-                                        setState(() {
-                                          allChannels
-                                              .add(subscribedChannels[index]);
-                                          subscribedChannels.remove(
-                                              subscribedChannels[index]);
-                                        });
-                                      }
-                                    }
+                                    await unsubscribeConfirmation(context, index, userId);
                                   },
                                   child: const Text('Unsubscribe')
                                 ),
@@ -359,7 +320,9 @@ class _ChannelsState extends State<Channels> {
                                 ],
                               ),
                               trailing: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    await unsubscribeConfirmation(context, index, userId);
+                                  },
                                   child: const Text('Unsubscribe')),
                               onTap: () => onChannelTap(subscribedChannels[index]),
                             );
@@ -381,7 +344,19 @@ class _ChannelsState extends State<Channels> {
                                 ],
                               ),
                               trailing: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    int channelId =
+                                        allChannels[index].channelId;
+                                    bool result = await onChannelSubscribe(
+                                        userId!, channelId);
+                                    if (result) {
+                                      setState(() {
+                                        subscribedChannels
+                                            .add(allChannels[index]);
+                                        allChannels.remove(allChannels[index]);
+                                      });
+                                    }
+                                  },
                                   child: const Text('Subscribe')),
                               dense: true,
                             );
@@ -410,5 +385,49 @@ class _ChannelsState extends State<Channels> {
         ),
       ]),
     );
+  }
+
+  Future<void> unsubscribeConfirmation(BuildContext context, int index, int? userId) async {
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Unsubscribe'),
+          content: const Text(
+              'Are you sure you want to unsubscribe from this channel?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Continue'),
+            ),
+          ],
+        );
+      },
+    );
+    
+    if (confirm == true) {
+      int channelId =
+          subscribedChannels[index].channelId;
+      bool result = await onChannelUnsubscribe(
+          userId!, channelId);
+    
+      if (result) {
+        setState(() {
+          allChannels
+              .add(subscribedChannels[index]);
+          subscribedChannels.remove(
+              subscribedChannels[index]);
+        });
+      }
+    }
   }
 }

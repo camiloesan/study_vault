@@ -13,8 +13,8 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-class Channel extends $pb.GeneratedMessage {
-  factory Channel({
+class ChannelRequest extends $pb.GeneratedMessage {
+  factory ChannelRequest({
     $core.int? channelId,
   }) {
     final $result = create();
@@ -23,11 +23,11 @@ class Channel extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  Channel._() : super();
-  factory Channel.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Channel.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  ChannelRequest._() : super();
+  factory ChannelRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ChannelRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Channel', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ChannelRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
     ..a<$core.int>(1, _omitFieldNames ? '' : 'channelId', $pb.PbFieldType.OU3)
     ..hasRequiredFields = false
   ;
@@ -36,22 +36,22 @@ class Channel extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Channel clone() => Channel()..mergeFromMessage(this);
+  ChannelRequest clone() => ChannelRequest()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Channel copyWith(void Function(Channel) updates) => super.copyWith((message) => updates(message as Channel)) as Channel;
+  ChannelRequest copyWith(void Function(ChannelRequest) updates) => super.copyWith((message) => updates(message as ChannelRequest)) as ChannelRequest;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static Channel create() => Channel._();
-  Channel createEmptyInstance() => create();
-  static $pb.PbList<Channel> createRepeated() => $pb.PbList<Channel>();
+  static ChannelRequest create() => ChannelRequest._();
+  ChannelRequest createEmptyInstance() => create();
+  static $pb.PbList<ChannelRequest> createRepeated() => $pb.PbList<ChannelRequest>();
   @$core.pragma('dart2js:noInline')
-  static Channel getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Channel>(create);
-  static Channel? _defaultInstance;
+  static ChannelRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ChannelRequest>(create);
+  static ChannelRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.int get channelId => $_getIZ(0);
@@ -63,8 +63,8 @@ class Channel extends $pb.GeneratedMessage {
   void clearChannelId() => clearField(1);
 }
 
-class Posts_PostInfo extends $pb.GeneratedMessage {
-  factory Posts_PostInfo({
+class PostsResponse_PostInfo extends $pb.GeneratedMessage {
+  factory PostsResponse_PostInfo({
     $core.int? postId,
     $core.int? channelId,
     $core.String? fileId,
@@ -93,11 +93,11 @@ class Posts_PostInfo extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  Posts_PostInfo._() : super();
-  factory Posts_PostInfo.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Posts_PostInfo.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  PostsResponse_PostInfo._() : super();
+  factory PostsResponse_PostInfo.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PostsResponse_PostInfo.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Posts.PostInfo', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PostsResponse.PostInfo', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
     ..a<$core.int>(1, _omitFieldNames ? '' : 'postId', $pb.PbFieldType.OU3)
     ..a<$core.int>(2, _omitFieldNames ? '' : 'channelId', $pb.PbFieldType.OU3)
     ..aOS(3, _omitFieldNames ? '' : 'fileId')
@@ -111,22 +111,22 @@ class Posts_PostInfo extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Posts_PostInfo clone() => Posts_PostInfo()..mergeFromMessage(this);
+  PostsResponse_PostInfo clone() => PostsResponse_PostInfo()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Posts_PostInfo copyWith(void Function(Posts_PostInfo) updates) => super.copyWith((message) => updates(message as Posts_PostInfo)) as Posts_PostInfo;
+  PostsResponse_PostInfo copyWith(void Function(PostsResponse_PostInfo) updates) => super.copyWith((message) => updates(message as PostsResponse_PostInfo)) as PostsResponse_PostInfo;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static Posts_PostInfo create() => Posts_PostInfo._();
-  Posts_PostInfo createEmptyInstance() => create();
-  static $pb.PbList<Posts_PostInfo> createRepeated() => $pb.PbList<Posts_PostInfo>();
+  static PostsResponse_PostInfo create() => PostsResponse_PostInfo._();
+  PostsResponse_PostInfo createEmptyInstance() => create();
+  static $pb.PbList<PostsResponse_PostInfo> createRepeated() => $pb.PbList<PostsResponse_PostInfo>();
   @$core.pragma('dart2js:noInline')
-  static Posts_PostInfo getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Posts_PostInfo>(create);
-  static Posts_PostInfo? _defaultInstance;
+  static PostsResponse_PostInfo getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PostsResponse_PostInfo>(create);
+  static PostsResponse_PostInfo? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.int get postId => $_getIZ(0);
@@ -183,9 +183,9 @@ class Posts_PostInfo extends $pb.GeneratedMessage {
   void clearPublishDate() => clearField(6);
 }
 
-class Posts extends $pb.GeneratedMessage {
-  factory Posts({
-    $core.Iterable<Posts_PostInfo>? posts,
+class PostsResponse extends $pb.GeneratedMessage {
+  factory PostsResponse({
+    $core.Iterable<PostsResponse_PostInfo>? posts,
   }) {
     final $result = create();
     if (posts != null) {
@@ -193,12 +193,12 @@ class Posts extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  Posts._() : super();
-  factory Posts.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory Posts.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  PostsResponse._() : super();
+  factory PostsResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory PostsResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Posts', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
-    ..pc<Posts_PostInfo>(7, _omitFieldNames ? '' : 'posts', $pb.PbFieldType.PM, subBuilder: Posts_PostInfo.create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PostsResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
+    ..pc<PostsResponse_PostInfo>(7, _omitFieldNames ? '' : 'posts', $pb.PbFieldType.PM, subBuilder: PostsResponse_PostInfo.create)
     ..hasRequiredFields = false
   ;
 
@@ -206,25 +206,25 @@ class Posts extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  Posts clone() => Posts()..mergeFromMessage(this);
+  PostsResponse clone() => PostsResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  Posts copyWith(void Function(Posts) updates) => super.copyWith((message) => updates(message as Posts)) as Posts;
+  PostsResponse copyWith(void Function(PostsResponse) updates) => super.copyWith((message) => updates(message as PostsResponse)) as PostsResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static Posts create() => Posts._();
-  Posts createEmptyInstance() => create();
-  static $pb.PbList<Posts> createRepeated() => $pb.PbList<Posts>();
+  static PostsResponse create() => PostsResponse._();
+  PostsResponse createEmptyInstance() => create();
+  static $pb.PbList<PostsResponse> createRepeated() => $pb.PbList<PostsResponse>();
   @$core.pragma('dart2js:noInline')
-  static Posts getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Posts>(create);
-  static Posts? _defaultInstance;
+  static PostsResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PostsResponse>(create);
+  static PostsResponse? _defaultInstance;
 
   @$pb.TagNumber(7)
-  $core.List<Posts_PostInfo> get posts => $_getList(0);
+  $core.List<PostsResponse_PostInfo> get posts => $_getList(0);
 }
 
 class FileChunk extends $pb.GeneratedMessage {
@@ -333,8 +333,8 @@ class FileChunk extends $pb.GeneratedMessage {
   void clearDescription() => clearField(5);
 }
 
-class UploadStatus extends $pb.GeneratedMessage {
-  factory UploadStatus({
+class UploadStatusResponse extends $pb.GeneratedMessage {
+  factory UploadStatusResponse({
     $core.bool? success,
     $core.String? message,
   }) {
@@ -347,11 +347,11 @@ class UploadStatus extends $pb.GeneratedMessage {
     }
     return $result;
   }
-  UploadStatus._() : super();
-  factory UploadStatus.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UploadStatus.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  UploadStatusResponse._() : super();
+  factory UploadStatusResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory UploadStatusResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UploadStatus', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UploadStatusResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
     ..aOB(1, _omitFieldNames ? '' : 'success')
     ..aOS(2, _omitFieldNames ? '' : 'message')
     ..hasRequiredFields = false
@@ -361,22 +361,22 @@ class UploadStatus extends $pb.GeneratedMessage {
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
   'Will be removed in next major version')
-  UploadStatus clone() => UploadStatus()..mergeFromMessage(this);
+  UploadStatusResponse clone() => UploadStatusResponse()..mergeFromMessage(this);
   @$core.Deprecated(
   'Using this can add significant overhead to your binary. '
   'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
   'Will be removed in next major version')
-  UploadStatus copyWith(void Function(UploadStatus) updates) => super.copyWith((message) => updates(message as UploadStatus)) as UploadStatus;
+  UploadStatusResponse copyWith(void Function(UploadStatusResponse) updates) => super.copyWith((message) => updates(message as UploadStatusResponse)) as UploadStatusResponse;
 
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static UploadStatus create() => UploadStatus._();
-  UploadStatus createEmptyInstance() => create();
-  static $pb.PbList<UploadStatus> createRepeated() => $pb.PbList<UploadStatus>();
+  static UploadStatusResponse create() => UploadStatusResponse._();
+  UploadStatusResponse createEmptyInstance() => create();
+  static $pb.PbList<UploadStatusResponse> createRepeated() => $pb.PbList<UploadStatusResponse>();
   @$core.pragma('dart2js:noInline')
-  static UploadStatus getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UploadStatus>(create);
-  static UploadStatus? _defaultInstance;
+  static UploadStatusResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UploadStatusResponse>(create);
+  static UploadStatusResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.bool get success => $_getBF(0);
