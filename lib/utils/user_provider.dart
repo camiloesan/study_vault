@@ -13,7 +13,8 @@ class UserProvider with ChangeNotifier {
   String? get lastName => _lastName;
   String? get email => _email;
 
-  void loginUser(int userId, int userTypeId, String name, String lastName, String email) {
+  void loginUser(
+      int userId, int userTypeId, String name, String lastName, String email) {
     _userId = userId;
     _userTypeId = userTypeId;
     _name = name;
@@ -28,6 +29,12 @@ class UserProvider with ChangeNotifier {
     _name = null;
     _lastName = null;
     _email = null;
+    notifyListeners();
+  }
+
+  void updateUserInfo(String name, String lastName) {
+    _name = name;
+    _lastName = lastName;
     notifyListeners();
   }
 }
