@@ -101,8 +101,9 @@ class _EmailVerificationState extends State<EmailVerification> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor ingresa tu correo';
-                    }
-                    if (!RegExp(
+                    } else if (value.length > 64) {
+                      return 'Ingresa un correo de menos de 64 caracteres';
+                    } else if (!RegExp(
                             r'^(zs\d{8}@estudiantes\.uv\.mx|[a-zA-Z]+@uv\.mx)$')
                         .hasMatch(value)) {
                       return 'El correo debe ser de la Universidad Veracruzana';

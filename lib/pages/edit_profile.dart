@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/profile.dart';
-import 'package:study_vault/utils/constants.dart';
 import 'package:study_vault/utils/user_provider.dart';
+import 'package:http/http.dart' as http;
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -13,6 +15,9 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
@@ -32,83 +37,119 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
+  void _updaterUser() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final int? userId = userProvider.userId;
+
+    final response = await http.put(
+      Uri.parse('http://127.0.0.1:8083/update/$userId'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'id': userId,
+        'name': _nameController.text,
+        'last_name': _lastNameController.text
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Profile updated")),
+      );
+      Provider.of<UserProvider>(context, listen: false)
+          .updateUserInfo(_nameController.text, _lastNameController.text);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Profile()),
+      );
+    } else {
+      final errorResponse = json.decode(response.body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                "Error: ${errorResponse['message'] ?? 'Error al actualizarse'}")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final String userName =
-        "${userProvider.name ?? ""} ${userProvider.lastName ?? ""}";
-    final int? userType = userProvider.userTypeId;
-    final bool isStudent = userType == Constants.studentType;
-    final String? userEmail = userProvider.email;
-    late String userRole = "";
-
-    if (isStudent) {
-      userRole = "Student";
-    } else {
-      userRole = "Professor";
-    }
-
     return Scaffold(
       appBar: AppBar(title: const Text("Profile")),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text("Name",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  TextField(
-                      controller: TextEditingController(text: userName),
-                      style: const TextStyle(fontSize: 18)),
-                  const SizedBox(height: 16),
-                  const Text("Role",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  TextField(
-                      controller: TextEditingController(text: userRole),
-                      style: const TextStyle(fontSize: 18)),
-                  const SizedBox(height: 16),
-                  const Text("Email",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  TextField(
-                      controller: TextEditingController(text: userEmail),
-                      style: const TextStyle(fontSize: 18)),
-                ],
-              ),
-              const SizedBox(height: 32),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      // Acción para guardar cambios
-                    },
-                    child: const Text("Save Changes"),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Profile()),
-                      );
-                    },
-                    child: const Text("Cancelar"),
-                  ),
-                ],
-              ),
-            ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text("Name",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _nameController,
+                      style: const TextStyle(fontSize: 18),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingresa tu nombre';
+                        } else if (value.length > 32) {
+                          return 'Ingresa un nombre de menos de 32 caracteres';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    const Text("Last Name",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    TextFormField(
+                      controller: _lastNameController,
+                      style: const TextStyle(fontSize: 18),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingresa tu apellido';
+                        } else if (value.length > 64) {
+                          return 'Ingresa un apellido de menos de 64 caracteres';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _updaterUser();
+                        }
+                      },
+                      child: const Text("Save Changes"),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Profile()),
+                        );
+                      },
+                      child: const Text("Cancelar"),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
