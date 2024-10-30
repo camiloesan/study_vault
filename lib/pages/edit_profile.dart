@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
-import 'package:study_vault/pages/edit_profile.dart';
+import 'package:study_vault/pages/profile.dart';
 import 'package:study_vault/utils/constants.dart';
 import 'package:study_vault/utils/user_provider.dart';
 
-class Profile extends StatefulWidget {
-  const Profile({super.key});
+class EditProfile extends StatefulWidget {
+  const EditProfile({super.key});
 
   @override
-  State<Profile> createState() => _ProfileState();
+  State<EditProfile> createState() => _EditProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _EditProfileState extends State<EditProfile> {
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
@@ -64,19 +64,25 @@ class _ProfileState extends State<Profile> {
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(userName, style: const TextStyle(fontSize: 18)),
+                  TextField(
+                      controller: TextEditingController(text: userName),
+                      style: const TextStyle(fontSize: 18)),
                   const SizedBox(height: 16),
                   const Text("Role",
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(userRole, style: const TextStyle(fontSize: 18)),
+                  TextField(
+                      controller: TextEditingController(text: userRole),
+                      style: const TextStyle(fontSize: 18)),
                   const SizedBox(height: 16),
                   const Text("Email",
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(userEmail ?? "", style: const TextStyle(fontSize: 18)),
+                  TextField(
+                      controller: TextEditingController(text: userEmail),
+                      style: const TextStyle(fontSize: 18)),
                 ],
               ),
               const SizedBox(height: 32),
@@ -85,20 +91,20 @@ class _ProfileState extends State<Profile> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const EditProfile()),
-                      );
+                      // Acción para guardar cambios
                     },
-                    child: const Text("Edit Profile"),
+                    child: const Text("Save Changes"),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      // Acción para cambiar contraseña
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Profile()),
+                      );
                     },
-                    child: const Text("Change Password"),
+                    child: const Text("Cancelar"),
                   ),
                 ],
               ),
