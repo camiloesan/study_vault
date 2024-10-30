@@ -100,6 +100,13 @@ class _ProfileState extends State<Profile> {
                     },
                     child: const Text("Change Password"),
                   ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Acción para eliminar cuenta
+                    },
+                    child: const Text("Delete Account"),
+                  ),
                 ],
               ),
             ],

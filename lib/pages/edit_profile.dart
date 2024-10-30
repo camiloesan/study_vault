@@ -54,8 +54,10 @@ class _EditProfileState extends State<EditProfile> {
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Registro exitoso")),
+        const SnackBar(content: Text("Profile updated")),
       );
+      Provider.of<UserProvider>(context, listen: false)
+          .updateUserInfo(_nameController.text, _lastNameController.text);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const Profile()),
@@ -90,17 +92,35 @@ class _EditProfileState extends State<EditProfile> {
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    TextField(
-                        controller: _nameController,
-                        style: const TextStyle(fontSize: 18)),
+                    TextFormField(
+                      controller: _nameController,
+                      style: const TextStyle(fontSize: 18),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingresa tu nombre';
+                        } else if (value.length > 32) {
+                          return 'Ingresa un nombre de menos de 32 caracteres';
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 16),
                     const Text("Last Name",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    TextField(
-                        controller: _lastNameController,
-                        style: const TextStyle(fontSize: 18)),
+                    TextFormField(
+                      controller: _lastNameController,
+                      style: const TextStyle(fontSize: 18),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor ingresa tu apellido';
+                        } else if (value.length > 64) {
+                          return 'Ingresa un apellido de menos de 64 caracteres';
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 16),
                   ],
                 ),
@@ -110,7 +130,9 @@ class _EditProfileState extends State<EditProfile> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        _updaterUser();
+                        if (_formKey.currentState!.validate()) {
+                          _updaterUser();
+                        }
                       },
                       child: const Text("Save Changes"),
                     ),

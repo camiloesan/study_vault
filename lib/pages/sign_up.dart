@@ -86,6 +86,8 @@ class _SignUpState extends State<SignUp> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor ingresa tu nombre';
+                    } else if (value.length > 32) {
+                      return 'Ingresa un nombre de menos de 32 caracteres';
                     }
                     return null;
                   },
@@ -100,6 +102,8 @@ class _SignUpState extends State<SignUp> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor ingresa tu apellido';
+                    } else if (value.length > 64) {
+                      return 'Ingresa un apellido de menos de 64 caracteres';
                     }
                     return null;
                   },
@@ -115,6 +119,8 @@ class _SignUpState extends State<SignUp> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor ingresa una contraseña';
+                    } else if (value.length > 64) {
+                      return 'Ingresa una contraseña de menos de 64 caracteres';
                     }
                     return null;
                   },
