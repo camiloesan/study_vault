@@ -58,7 +58,7 @@ class _ChannelCreationState extends State<ChannelCreation>{
         throw Exception('Failed to create channel');
       }
     } catch (e) {
-      print('Error: $e');
+        print('Error: $e');
     }
   }
 

@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_vault/pojos/category.dart';
 import 'package:provider/provider.dart';
+import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/utils/user_provider.dart';
 
 class ChannelModification extends StatefulWidget {
-  final int? channelId;
-  const ChannelModification({super.key, this.channelId});
+  final Channel channel;
+  const ChannelModification({Key? key, required this.channel}) : super(key: key);
 
   @override
   State<ChannelModification> createState() => _ChannelModificationState();
@@ -16,9 +17,87 @@ class ChannelModification extends StatefulWidget {
 class _ChannelModificationState extends State<ChannelModification>{
   late List<Category> categories = [];
   Category? selectedCategory;
-  String channelName = '';
-  String channelDescription = '';
-  String _errorMessage = ''; 
+  String _errorMessage = '';
+  late TextEditingController nameController;
+  late TextEditingController descriptionController;
+
+  Future<void> updateChannel() async {
+    final url = Uri.parse('http://127.0.0.1:8080/channel/update/${widget.channel.channelId}');
+    final headers = {"Content-Type": "application/json"};
+    final body = jsonEncode({
+      'name': nameController.text,
+      'description': descriptionController.text,
+      'category_id': selectedCategory?.categoryId,
+    });
+
+    try {
+      final response = await http.put(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Channel updated successfully!')),
+        );
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to update channel';
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> deleteChannel() async {
+    final url = Uri.parse('http://127.0.0.1:8080/channel/delete/${widget.channel.channelId}');
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Channel deleted successfully!')),
+        );
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to delete channel';
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> deleteConfirmation() async {
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Channel'),
+          content: const Text('Are you sure you want to delete this channel? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await deleteChannel();
+    }
+  }
 
   Future<void> fetchCategories() async {
     final response = await http.get(Uri.parse('http://127.0.0.1:8080/categories/all'));
@@ -27,6 +106,9 @@ class _ChannelModificationState extends State<ChannelModification>{
       List<dynamic> jsonCategories = json.decode(utf8.decode(response.bodyBytes));
       setState(() {
         categories = jsonCategories.map((category) => Category.fromJson(category)).toList();
+        selectedCategory = categories.firstWhere(
+          (category) => category.name == widget.channel.categoryName
+        );
       });
     } else {
       throw Exception('Failed to load categories');
@@ -36,7 +118,16 @@ class _ChannelModificationState extends State<ChannelModification>{
   @override
   void initState() {
     super.initState();
+    nameController = TextEditingController(text: widget.channel.name);
+    descriptionController = TextEditingController(text: widget.channel.description);
     fetchCategories();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    descriptionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,14 +152,15 @@ class _ChannelModificationState extends State<ChannelModification>{
 
               TextField(
                 maxLength: 32,
+                controller: nameController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                 ),
+
                 onChanged: (value) {
-                setState(() {
-                  channelName = value;
-                });
-              },
+                  setState(() {
+                  });
+                },
               ),
 
               const SizedBox(height: 8.0),
@@ -85,14 +177,15 @@ class _ChannelModificationState extends State<ChannelModification>{
                   maxLength: 256,
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
+                  controller: descriptionController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
+
                   onChanged: (value) {
-                  setState(() {
-                    channelDescription = value;
-                  });
-                },
+                    setState(() {
+                    });
+                  },
                 ),
               ),
 
@@ -100,7 +193,7 @@ class _ChannelModificationState extends State<ChannelModification>{
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text('Select Category'),
-                ),
+              ),
               
               const SizedBox(height: 8.0),
               DropdownButtonFormField<Category>(
@@ -147,10 +240,21 @@ class _ChannelModificationState extends State<ChannelModification>{
 
                   const SizedBox(width: 12.0),
 
+                  ElevatedButton.icon(
+                    onPressed: deleteConfirmation,
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Delete'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[200],
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 12.0),
+
                   ElevatedButton(
                     onPressed: () {
-                      if (channelName.isNotEmpty && selectedCategory != null && channelDescription.isNotEmpty) {
-                        //Modificar canal
+                      if (nameController.text.isNotEmpty && selectedCategory != null && descriptionController.text.isNotEmpty) {
+                        updateChannel();
                       } else {
                         setState(() {
                         _errorMessage = 'Please fill all fields';
@@ -159,21 +263,6 @@ class _ChannelModificationState extends State<ChannelModification>{
                     },
                     child: const Text('Save'),
                   ),
-                  
-                  const SizedBox(width: 12.0), // Espacio entre los botones
-                
-                ElevatedButton.icon(
-                  onPressed: () {
-                    if (widget.channelId != null) {
-                      //Eliminar canal
-                    }
-                  },
-                  icon: const Icon(Icons.delete), // Ícono de bote de basura
-                  label: const Text('Delete'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[200],
-                  ),
-                ),
                 ],
               ),
             ],

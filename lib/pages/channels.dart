@@ -40,16 +40,12 @@ class _ChannelsState extends State<Channels> {
     }
   }
 
-  //final int userType = 2; // 2 student, 1 professor
-  //final int tempUserId = 1;
-
   Future<void> fetchData(int? userId, int? userType) async {
     bool isStudent = userType == Constants.studentType;
 
     if (isStudent) {
       final myChannelsResponse = await http
           .get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
-      // replace 1 for user id in session
       final subscribedChannelsResponse = await http
           .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
       final allChannelsResponse =
@@ -83,7 +79,6 @@ class _ChannelsState extends State<Channels> {
         throw Exception('Failed to load data'); // Send an alert instead
       }
     } else {
-      // replace 1 for user id in session
       final subscribedChannelsResponse = await http
           .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
       final allChannelsResponse =
@@ -163,9 +158,9 @@ class _ChannelsState extends State<Channels> {
         });
   }
 
-  void modifyChannel() {
+  void modifyChannel(Channel channel) {
     showDialog(context: context, builder: (context) {
-      return const ChannelModification();
+      return ChannelModification(channel: channel);
     });
   }
 
@@ -339,7 +334,7 @@ class _ChannelsState extends State<Channels> {
                                   height: 24,
                                 ),
                                 onPressed: () {
-                                  modifyChannel();
+                                  modifyChannel(myChannels[index]);
                                 },
                               ),
                               onTap: () => onChannelTap(myChannels[index]),
