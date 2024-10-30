@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/profile.dart';
-import 'package:study_vault/utils/constants.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -67,7 +66,7 @@ class _EditProfileState extends State<EditProfile> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                "Error: ${errorResponse['message'] ?? 'Error al registrarse'}")),
+                "Error: ${errorResponse['message'] ?? 'Error al actualizarse'}")),
       );
     }
   }
