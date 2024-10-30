@@ -4,10 +4,11 @@ import 'package:study_vault/pages/login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import '../utils/variables.dart';
 
 class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+  final String email;
+
+  const SignUp({super.key, required this.email});
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -26,7 +27,7 @@ class _SignUpState extends State<SignUp> {
       Uri.parse('http://127.0.0.1:8080/register'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        'email': Variables.email,
+        'email': widget.email,
         'name': _nameController.text,
         'last_name': _lastNameController.text,
         'password': _hashPassword(_passwordController.text),

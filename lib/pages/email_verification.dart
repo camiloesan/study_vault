@@ -3,7 +3,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/sign_up.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../utils/variables.dart';
 
 class EmailVerification extends StatefulWidget {
   const EmailVerification({super.key});
@@ -41,11 +40,10 @@ class _EmailVerificationState extends State<EmailVerification> {
       if (emails.contains(email)) {
         _showEmailExistsAlert();
       } else {
-        Variables.email = email;
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const SignUp(),
+            builder: (context) => SignUp(email: email),
           ),
         );
       }
@@ -105,7 +103,7 @@ class _EmailVerificationState extends State<EmailVerification> {
                       return 'Por favor ingresa tu correo';
                     }
                     if (!RegExp(
-                            r'^[a-zA-Z0-9._%+-]+@(estudiantes\.uv\.mx|uv\.mx)$')
+                            r'^(zs\d{8}@estudiantes\.uv\.mx|[a-zA-Z]+@uv\.mx)$')
                         .hasMatch(value)) {
                       return 'El correo debe ser de la Universidad Veracruzana';
                     }
