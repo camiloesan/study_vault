@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
+import 'package:study_vault/utils/constants.dart';
 import 'package:study_vault/utils/user_provider.dart';
 
 class Profile extends StatefulWidget {
@@ -20,6 +21,7 @@ class _ProfileState extends State<Profile> {
           context,
           MaterialPageRoute(builder: (context) => const Channels()),
         );
+        break;
       case 1:
       default:
         Navigator.push(
@@ -32,11 +34,73 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final String userName =
+        (userProvider.name ?? "") + " " + (userProvider.lastName ?? "");
     final int? userType = userProvider.userTypeId;
-    final int? userId = userProvider.userId;
+    final bool isStudent = userType == Constants.studentType;
+    final String? userEmail = userProvider.email;
+    late String userRole = "";
+
+    if (isStudent) {
+      userRole = "Student";
+    } else {
+      userRole = "Professor";
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text("Profile")),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text("Name",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(userName, style: const TextStyle(fontSize: 18)),
+                  const SizedBox(height: 16),
+                  const Text("Role",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(userRole, style: const TextStyle(fontSize: 18)),
+                  const SizedBox(height: 16),
+                  const Text("Email",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(userEmail ?? "", style: const TextStyle(fontSize: 18)),
+                ],
+              ),
+              const SizedBox(height: 32),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // Acción para editar perfil
+                    },
+                    child: const Text("Edit Profile"),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Acción para cambiar contraseña
+                    },
+                    child: const Text("Change Password"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
