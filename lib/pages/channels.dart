@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_vault/pages/channel_content.dart';
 import 'package:study_vault/pages/channel_creation.dart';
+import 'package:study_vault/pages/profile.dart';
 import 'dart:convert';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/utils/constants.dart';
@@ -20,6 +21,24 @@ class _ChannelsState extends State<Channels> {
   late List<Channel> subscribedChannels = [];
   late List<Channel> allChannels = [];
 
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    switch (index) {
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Profile()),
+        );
+      case 0:
+      default:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Channels()),
+        );
+    }
+  }
+
   //final int userType = 2; // 2 student, 1 professor
   //final int tempUserId = 1;
 
@@ -27,8 +46,8 @@ class _ChannelsState extends State<Channels> {
     bool isStudent = userType == Constants.studentType;
 
     if (isStudent) {
-      final myChannelsResponse =
-          await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
+      final myChannelsResponse = await http
+          .get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
       // replace 1 for user id in session
       final subscribedChannelsResponse = await http
           .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
@@ -92,11 +111,11 @@ class _ChannelsState extends State<Channels> {
       }
     }
 
-    final myChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
+    final myChannelsResponse = await http
+        .get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
     // replace 1 for user id in session
-    final subscribedChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
+    final subscribedChannelsResponse = await http
+        .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
     final allChannelsResponse =
         await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
 
@@ -136,13 +155,18 @@ class _ChannelsState extends State<Channels> {
   }
 
   void createChannel() {
-    showDialog(context: context, builder: (context) {
-      return const ChannelCreation();
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const ChannelCreation();
+        });
   }
 
   void onChannelTap(Channel channel) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ChannelContent(channel: channel)));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ChannelContent(channel: channel)));
   }
 
   Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
@@ -241,11 +265,12 @@ class _ChannelsState extends State<Channels> {
                               ),
                               trailing: ElevatedButton(
                                   onPressed: () async {
-                                    await unsubscribeConfirmation(context, index, userId);
+                                    await unsubscribeConfirmation(
+                                        context, index, userId);
                                   },
-                                  child: const Text('Unsubscribe')
-                                ),
-                              onTap: () => onChannelTap(subscribedChannels[index]),
+                                  child: const Text('Unsubscribe')),
+                              onTap: () =>
+                                  onChannelTap(subscribedChannels[index]),
                             );
                           },
                         ),
@@ -321,10 +346,12 @@ class _ChannelsState extends State<Channels> {
                               ),
                               trailing: ElevatedButton(
                                   onPressed: () async {
-                                    await unsubscribeConfirmation(context, index, userId);
+                                    await unsubscribeConfirmation(
+                                        context, index, userId);
                                   },
                                   child: const Text('Unsubscribe')),
-                              onTap: () => onChannelTap(subscribedChannels[index]),
+                              onTap: () =>
+                                  onChannelTap(subscribedChannels[index]),
                             );
                           },
                         ),
@@ -374,20 +401,25 @@ class _ChannelsState extends State<Channels> {
               onPressed: () => createChannel(),
               child: const Icon(Icons.add),
             ),
-      bottomNavigationBar: BottomNavigationBar(items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.collections_bookmark_outlined),
-          label: 'Channels',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.account_box),
-          label: 'Profile',
-        ),
-      ]),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.collections_bookmark_outlined),
+            label: 'Channels',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_box),
+            label: 'Profile',
+          ),
+        ],
+      ),
     );
   }
 
-  Future<void> unsubscribeConfirmation(BuildContext context, int index, int? userId) async {
+  Future<void> unsubscribeConfirmation(
+      BuildContext context, int index, int? userId) async {
     bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -398,8 +430,7 @@ class _ChannelsState extends State<Channels> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context)
-                    .pop(false);
+                Navigator.of(context).pop(false);
               },
               child: const Text('Cancel'),
             ),
@@ -413,19 +444,15 @@ class _ChannelsState extends State<Channels> {
         );
       },
     );
-    
+
     if (confirm == true) {
-      int channelId =
-          subscribedChannels[index].channelId;
-      bool result = await onChannelUnsubscribe(
-          userId!, channelId);
-    
+      int channelId = subscribedChannels[index].channelId;
+      bool result = await onChannelUnsubscribe(userId!, channelId);
+
       if (result) {
         setState(() {
-          allChannels
-              .add(subscribedChannels[index]);
-          subscribedChannels.remove(
-              subscribedChannels[index]);
+          allChannels.add(subscribedChannels[index]);
+          subscribedChannels.remove(subscribedChannels[index]);
         });
       }
     }
