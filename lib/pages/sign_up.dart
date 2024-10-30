@@ -24,7 +24,7 @@ class _SignUpState extends State<SignUp> {
 
   void _registerUser() async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8080/register'),
+      Uri.parse('http://127.0.0.1:8083/register'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'email': widget.email,

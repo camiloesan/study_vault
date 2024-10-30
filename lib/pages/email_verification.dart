@@ -23,7 +23,7 @@ class _EmailVerificationState extends State<EmailVerification> {
 
   Future<List<String>> _fetchEmails() async {
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8080/user/email/all'),
+      Uri.parse('http://127.0.0.1:8083/user/email/all'),
     );
 
     if (response.statusCode == 200) {
