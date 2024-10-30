@@ -5,6 +5,7 @@ class Channel {
   final String creatorLastName;
   final String name;
   final String description;
+  final String categoryName;
 
   const Channel({
     required this.channelId,
@@ -13,6 +14,7 @@ class Channel {
     required this.creatorLastName,
     required this.name,
     required this.description,
+    required this.categoryName,
   });
 
   factory Channel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class Channel {
         'creator_last_name': String creatorLastName,
         'name': String name,
         'description': String description,
+        'category_name': String categoryName,
       } =>
         Channel(
           channelId: channelId,
@@ -32,6 +35,7 @@ class Channel {
           creatorLastName: creatorLastName,
           name: name,
           description: description,
+          categoryName: categoryName,
         ),
       _ => throw const FormatException('Failed to load channels.'),
     };

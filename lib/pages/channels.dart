@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_vault/pages/channel_content.dart';
 import 'package:study_vault/pages/channel_creation.dart';
+import 'package:study_vault/pages/channel_modification.dart';
 import 'dart:convert';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/utils/constants.dart';
@@ -138,6 +139,12 @@ class _ChannelsState extends State<Channels> {
   void createChannel() {
     showDialog(context: context, builder: (context) {
       return const ChannelCreation();
+    });
+  }
+
+  void modifyChannel() {
+    showDialog(context: context, builder: (context) {
+      return const ChannelModification();
     });
   }
 
@@ -299,6 +306,16 @@ class _ChannelsState extends State<Channels> {
                                   Text(
                                       '${myChannels[index].creatorName} ${myChannels[index].creatorLastName}')
                                 ],
+                              ),
+                              trailing: IconButton(
+                                icon: Image.asset(
+                                  'assets/images/edit_icon.png',
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                onPressed: () {
+                                  modifyChannel();
+                                },
                               ),
                               onTap: () => onChannelTap(myChannels[index]),
                             );
