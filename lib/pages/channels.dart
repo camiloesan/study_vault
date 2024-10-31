@@ -150,18 +150,22 @@ class _ChannelsState extends State<Channels> {
     fetchData(userProvider.userId, userProvider.userTypeId);
   }
 
-  void createChannel() {
-    showDialog(
+  void createChannel() async {
+    await showDialog(
         context: context,
-        builder: (context) {
-          return const ChannelCreation();
-        });
+        builder: (context) => const ChannelCreation(),
+    );
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await fetchData(userProvider.userId, userProvider.userTypeId);
   }
 
-  void modifyChannel(Channel channel) {
-    showDialog(context: context, builder: (context) {
-      return ChannelModification(channel: channel);
-    });
+  void modifyChannel(Channel channel) async {
+    await showDialog(
+      context: context,
+      builder: (context) => ChannelModification(channel: channel),
+    );
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await fetchData(userProvider.userId, userProvider.userTypeId);
   }
 
   void onChannelTap(Channel channel) {
@@ -184,6 +188,7 @@ class _ChannelsState extends State<Channels> {
       final response = await http.delete(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
+        await fetchData(userId, Constants.studentType);
         return true;
       } else {
         return false;
@@ -209,6 +214,7 @@ class _ChannelsState extends State<Channels> {
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
+        await fetchData(userId, Constants.studentType);
         return true;
       } else {
         return false;
