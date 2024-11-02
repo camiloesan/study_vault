@@ -4,14 +4,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
-import 'package:study_vault/pages/edit_profile.dart';
-import 'package:study_vault/pages/landing_launch.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:study_vault/pages/comment_modification.dart';
 import 'package:study_vault/pages/profile.dart';
 import 'package:study_vault/pojos/comment.dart';
-import 'package:study_vault/pojos/post.dart';
 import 'package:study_vault/src/generated/studyvault.pb.dart';
-import 'package:study_vault/utils/constants.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -151,6 +148,8 @@ class _PostContentState extends State<PostContent> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Comentario guardado con éxito")),
       );
+      _fetchComments();
+      build(context);
     } else {
       final errorResponse = json.decode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -161,15 +160,26 @@ class _PostContentState extends State<PostContent> {
     }
   }
 
+  void modifyComment(Comment comment) async {
+    await showDialog(
+      context: context,
+      builder: (context) => CommentModification(comment: comment),
+    );
+    _fetchComments();
+  }
+
   @override
   void initState() {
     super.initState();
     _fetchComments();
     _setChannelName();
+    _setPostCreatorName();
   }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final int? _userId = userProvider.userId;
     return Scaffold(
       appBar: AppBar(title: Text(_channelName)),
       body: Center(
@@ -302,6 +312,17 @@ class _PostContentState extends State<PostContent> {
                             itemSize: 20.0,
                             direction: Axis.horizontal,
                           ),
+                          if (comments[index].userId == _userId)
+                            IconButton(
+                              icon: Image.asset(
+                                'assets/images/edit_icon.png',
+                                width: 24,
+                                height: 24,
+                              ),
+                              onPressed: () {
+                                modifyComment(comments[index]);
+                              },
+                            ),
                         ],
                       ),
                       onTap: () {},
