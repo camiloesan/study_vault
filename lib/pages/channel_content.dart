@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
+import 'package:study_vault/pages/post_content.dart';
 import 'package:study_vault/pages/post_creation.dart';
 import 'package:study_vault/pojos/channel.dart';
+import 'package:study_vault/pojos/post.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/constants.dart';
 
@@ -33,8 +35,7 @@ class _ChannelContentState extends State<ChannelContent> {
 
     try {
       final response = await stub.getPostsByChannelId(
-        ChannelRequest()..channelId = widget.channel.channelId
-      );
+          ChannelRequest()..channelId = widget.channel.channelId);
 
       setState(() {
         channelPosts = response.posts;
@@ -64,7 +65,6 @@ class _ChannelContentState extends State<ChannelContent> {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final int? userType = userProvider.userTypeId;
-    final int? userId = userProvider.userId;
 
     bool isStudent = userType == Constants.studentType;
 
@@ -100,7 +100,14 @@ class _ChannelContentState extends State<ChannelContent> {
                       contentPadding: const EdgeInsets.all(8.0),
                       subtitle: Text(
                           "${channelPosts[index].description}\nPublished on: ${channelPosts[index].publishDate}"),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PostContent(post: channelPosts[index])),
+                        );
+                      },
                     );
                   },
                   separatorBuilder: (context, index) {
