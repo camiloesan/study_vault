@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:study_vault/pages/Change_password.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/edit_profile.dart';
 import 'package:study_vault/pages/landing_launch.dart';
@@ -156,7 +157,11 @@ class _ProfileState extends State<Profile> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      // Acción para cambiar contraseña
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ChangePassword()),
+                      );
                     },
                     child: const Text("Change Password"),
                   ),
