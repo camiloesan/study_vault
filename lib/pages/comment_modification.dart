@@ -2,11 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
-import 'package:study_vault/pojos/category.dart';
-import 'package:provider/provider.dart';
-import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/pojos/comment.dart';
-import 'package:study_vault/utils/user_provider.dart';
 
 class CommentModification extends StatefulWidget {
   final Comment comment;

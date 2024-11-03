@@ -104,7 +104,7 @@ class _EmailVerificationState extends State<EmailVerification> {
                     } else if (value.length > 64) {
                       return 'Ingresa un correo de menos de 64 caracteres';
                     } else if (!RegExp(
-                            r'^(zs\d{8}@estudiantes\.uv\.mx|[a-zA-Z]+@uv\.mx)$')
+                            r'^(zS\d{8}@estudiantes\.uv\.mx|[a-zA-Z]+@uv\.mx)$')
                         .hasMatch(value)) {
                       return 'El correo debe ser de la Universidad Veracruzana';
                     }

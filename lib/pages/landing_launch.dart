@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:study_vault/pages/email_verification.dart';
 import 'package:study_vault/pages/login.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:study_vault/pages/verify_email_exist.dart';
 
 class LandingLaunch extends StatelessWidget {
   const LandingLaunch({super.key});
-
-  void _go_email_verification(BuildContext context) {}
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +53,23 @@ class LandingLaunch extends StatelessWidget {
                 child: Text(
                   AppLocalizations.of(context)!.logIn,
                   style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            Transform.scale(
+              scale: 1.2,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const VerifyEmailExist(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "Forgot password?",
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ),

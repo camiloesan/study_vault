@@ -1,53 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:study_vault/pages/landing_launch.dart';
+import 'package:study_vault/pages/login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-class SignUp extends StatefulWidget {
+class UpdatePassword extends StatefulWidget {
   final String email;
 
-  const SignUp({super.key, required this.email});
+  const UpdatePassword({super.key, required this.email});
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<UpdatePassword> createState() => _UpdatePasswordState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _UpdatePasswordState extends State<UpdatePassword> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
 
-  void _registerUser() async {
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8083/register'),
+  void _updaterPassword() async {
+    final response = await http.put(
+      Uri.parse('http://127.0.0.1:8083/password/update'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'email': widget.email,
-        'name': _nameController.text,
-        'last_name': _lastNameController.text,
-        'password': _hashPassword(_passwordController.text),
+        'password': _hashPassword(_passwordController.text)
       }),
     );
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Registro exitoso")),
+        const SnackBar(content: Text("Password updated")),
       );
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const LandingLaunch()),
+        MaterialPageRoute(builder: (context) => const Login()),
       );
     } else {
       final errorResponse = json.decode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                "Error: ${errorResponse['message'] ?? 'Error al registrarse'}")),
+                "Error: ${errorResponse['message'] ?? 'Error al actualizarse'}")),
       );
     }
   }
@@ -75,38 +71,6 @@ class _SignUpState extends State<SignUp> {
                     "Regístrate",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: 'Nombre(s)',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu nombre';
-                    } else if (value.length > 32) {
-                      return 'Ingresa un nombre de menos de 32 caracteres';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _lastNameController,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    labelText: 'Apellido(s)',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa tu apellido';
-                    } else if (value.length > 64) {
-                      return 'Ingresa un apellido de menos de 64 caracteres';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -144,7 +108,7 @@ class _SignUpState extends State<SignUp> {
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      _registerUser();
+                      _updaterPassword();
                     }
                   },
                   child: Text(AppLocalizations.of(context)!.continueString),
