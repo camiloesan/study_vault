@@ -61,11 +61,10 @@ class _ChangePasswordState extends State<ChangePassword> {
         MaterialPageRoute(builder: (context) => const Profile()),
       );
     } else {
-      final errorResponse = json.decode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                "Error: ${errorResponse['message'] ?? 'Error al actualizarse'}")),
+        const SnackBar(
+            content:
+                Text("Error al actualizarse, intenta con otra contraseña")),
       );
     }
   }

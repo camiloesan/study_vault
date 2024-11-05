@@ -26,7 +26,7 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
 
   void _sendCodeToEmail() async {
     final response = await http.post(
-        Uri.parse('http://127.0.0.1:8083/user/verification/request'),
+        Uri.parse('http://127.0.0.1:8085/user/verification/request'),
         headers: {'Content-Type': 'application/json'},
         body: '"${_emailController.text}"');
 
@@ -70,7 +70,7 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
 
   void _sendVerifyCode(String code) async {
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8083/user/verify'),
+      Uri.parse('http://127.0.0.1:8085/user/verify'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'email': _emailController.text, 'code': code}),
     );
