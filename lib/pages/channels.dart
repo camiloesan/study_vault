@@ -41,9 +41,9 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<void> fetchData(int? userId, int? userType) async {
-    bool isStudent = userType == Constants.studentType;
+    bool isProfessor = userType == Constants.professorType;
 
-    if (isStudent) {
+    if (isProfessor) {
       final myChannelsResponse = await http
           .get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
       final subscribedChannelsResponse = await http
@@ -106,41 +106,6 @@ class _ChannelsState extends State<Channels> {
         throw Exception('Failed to load data'); // Send an alert instead
       }
     }
-
-    final myChannelsResponse = await http
-        .get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
-    // replace 1 for user id in session
-    final subscribedChannelsResponse = await http
-        .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
-    final allChannelsResponse =
-        await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
-
-    if (allChannelsResponse.statusCode == 200 &&
-        myChannelsResponse.statusCode == 200 &&
-        subscribedChannelsResponse.statusCode == 200) {
-      List<dynamic> jsonMyChannels =
-          json.decode(utf8.decode(myChannelsResponse.bodyBytes));
-      List<dynamic> jsonSubscribedChannels =
-          json.decode(utf8.decode(subscribedChannelsResponse.bodyBytes));
-      List<dynamic> jsonAllChannels =
-          json.decode(utf8.decode(allChannelsResponse.bodyBytes));
-
-      setState(() {
-        myChannels =
-            jsonMyChannels.map((channel) => Channel.fromJson(channel)).toList();
-        subscribedChannels = jsonSubscribedChannels
-            .map((channel) => Channel.fromJson(channel))
-            .toList();
-        allChannels = jsonAllChannels
-            .map((channel) => Channel.fromJson(channel))
-            .toList();
-        allChannels.removeWhere((channel) => subscribedChannels.any(
-            (subscribedChannel) =>
-                subscribedChannel.channelId == channel.channelId));
-      });
-    } else {
-      throw Exception('Failed to load data'); // Send an alert instead
-    }
   }
 
   @override
@@ -188,7 +153,6 @@ class _ChannelsState extends State<Channels> {
       final response = await http.delete(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
-        await fetchData(userId, Constants.studentType);
         return true;
       } else {
         return false;
@@ -210,11 +174,9 @@ class _ChannelsState extends State<Channels> {
     });
 
     try {
-      print('in');
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
-        await fetchData(userId, Constants.studentType);
         return true;
       } else {
         return false;
