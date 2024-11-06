@@ -10,18 +10,16 @@ import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
 
 class ChannelContent extends StatefulWidget {
-  const ChannelContent({super.key, required this.channel});
+  const ChannelContent({super.key, required this.channel, required this.isChannelCreator});
 
   final Channel channel;
+  final bool isChannelCreator;
 
   @override
   State<ChannelContent> createState() => _ChannelContentState();
 }
 
 class _ChannelContentState extends State<ChannelContent> {
-  //final int userType = 1; // 2 student, 1 professor
-  //final int tempUserId = 1;
-
   late List<PostsResponse_PostInfo> channelPosts = [];
 
   Future<void> fetchGrpcData() async {
@@ -52,12 +50,13 @@ class _ChannelContentState extends State<ChannelContent> {
     fetchGrpcData();
   }
 
-  void createNewPost() {
-    showDialog(
+  void createNewPost() async {
+    await showDialog(
         context: context,
         builder: (context) {
           return PostCreation(channel: widget.channel);
         });
+    await fetchGrpcData();
   }
 
   @override
@@ -121,7 +120,7 @@ class _ChannelContentState extends State<ChannelContent> {
           ),
         ),
       ),
-      floatingActionButton: isStudent
+      floatingActionButton: !widget.isChannelCreator
           ? null
           : FloatingActionButton(
               onPressed: () => createNewPost(),

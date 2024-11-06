@@ -83,13 +83,30 @@ class _PostCreationState extends State<PostCreation> {
                     child: const Text('Cancel')),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
-                    onPressed: () {
-                      uploadPost(
+                    onPressed: () async {
+                      var result = uploadPost(
                           filePath: selectedFilePath,
                           channelId: widget.channel.channelId,
                           title: _titleController.text,
                           description: _descriptionController.text,
-                          filename: selectedFileName);
+                          filename: selectedFileName
+                        );
+
+                      if (await result) {
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Post created succesfully!')),
+                          );
+                        }
+                      } else {
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Post could not be created, try again later'), backgroundColor: Colors.redAccent),
+                          );
+                        }
+                      }
                     },
                     child: const Text('Create')),
               ],
@@ -120,13 +137,8 @@ class _PostCreationState extends State<PostCreation> {
     final file = File(filePath);
 
     try {
-      // Create a stream controller to manage the file chunks
       final controller = StreamController<FileChunk>();
-
-      // Start reading the file in chunks
       final fileStream = file.openRead();
-
-      // Process the file stream
       fileStream
           .cast<List<int>>()
           .asyncMap((chunk) => FileChunk()
@@ -142,7 +154,6 @@ class _PostCreationState extends State<PostCreation> {
                 controller.close();
               });
 
-      // Send the stream to the server
       final response = await stub.uploadPost(controller.stream);
 
       if (response.success) {
