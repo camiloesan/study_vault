@@ -134,10 +134,11 @@ class _ChannelsState extends State<Channels> {
   }
 
   void onChannelTap(Channel channel) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ChannelContent(channel: channel)));
+            builder: (context) => ChannelContent(channel: channel, isChannelCreator: userProvider.userId == channel.creatorId)));
   }
 
   Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
