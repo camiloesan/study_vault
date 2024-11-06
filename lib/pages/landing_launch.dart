@@ -56,6 +56,7 @@ class LandingLaunch extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
             Transform.scale(
               scale: 1.2,
               child: TextButton(
@@ -67,9 +68,12 @@ class LandingLaunch extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Text(
-                  "Forgot password?",
-                  style: TextStyle(fontSize: 16),
+                child: const Opacity(
+                  opacity: 0.5,
+                  child: Text(
+                    "Forgot password?",
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
               ),
             ),
