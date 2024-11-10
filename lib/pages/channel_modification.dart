@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_vault/pojos/category.dart';
 import 'package:study_vault/pojos/channel.dart';
+import 'package:provider/provider.dart';
+import 'package:study_vault/utils/user_provider.dart';
 
 class ChannelModification extends StatefulWidget {
   final Channel channel;
@@ -17,13 +19,20 @@ class _ChannelModificationState extends State<ChannelModification> {
   late List<Category> categories = [];
   Category? selectedCategory;
   String _errorMessage = '';
+  String? token;
+
   late TextEditingController nameController;
   late TextEditingController descriptionController;
 
   Future<void> updateChannel() async {
     final url = Uri.parse(
-        'http://127.0.0.1:8080/channel/update/${widget.channel.channelId}');
-    final headers = {"Content-Type": "application/json"};
+      'http://127.0.0.1:8080/channel/update/${widget.channel.channelId}');
+    
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
     final body = jsonEncode({
       'name': nameController.text,
       'description': descriptionController.text,
@@ -52,8 +61,13 @@ class _ChannelModificationState extends State<ChannelModification> {
     final url = Uri.parse(
         'http://127.0.0.1:8080/channel/delete/${widget.channel.channelId}');
 
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
     try {
-      final response = await http.delete(url);
+      final response = await http.delete(url, headers: headers);
 
       if (response.statusCode == 200) {
         Navigator.pop(context, true);
@@ -102,8 +116,13 @@ class _ChannelModificationState extends State<ChannelModification> {
   }
 
   Future<void> fetchCategories() async {
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
     final response =
-        await http.get(Uri.parse('http://127.0.0.1:8080/categories/all'));
+        await http.get(Uri.parse('http://127.0.0.1:8080/categories/all'), headers: headers,);
 
     if (response.statusCode == 200) {
       List<dynamic> jsonCategories =
@@ -126,6 +145,8 @@ class _ChannelModificationState extends State<ChannelModification> {
     nameController = TextEditingController(text: widget.channel.name);
     descriptionController =
         TextEditingController(text: widget.channel.description);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    token = userProvider.token;
     fetchCategories();
   }
 

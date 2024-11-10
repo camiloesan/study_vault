@@ -19,8 +19,16 @@ class _ChannelCreationState extends State<ChannelCreation>{
   String channelDescription = '';
   String _errorMessage = ''; 
 
+  int? userId;
+  String? token;
+
   Future<void> fetchCategories() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8080/categories/all'));
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
+    final response = await http.get(Uri.parse('http://127.0.0.1:8080/categories/all'), headers: headers,);
 
     if (response.statusCode == 200) {
       List<dynamic> jsonCategories = json.decode(utf8.decode(response.bodyBytes));
@@ -33,11 +41,11 @@ class _ChannelCreationState extends State<ChannelCreation>{
   }
 
   Future<void> createChannel() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final int userId = userProvider.userId!;
-
     final url = Uri.parse('http://127.0.0.1:8080/channel/create');
-    final headers = {"Content-Type": "application/json"};
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
 
     final body = jsonEncode({
       'name': channelName,
@@ -65,6 +73,9 @@ class _ChannelCreationState extends State<ChannelCreation>{
   @override
   void initState() {
     super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userId = userProvider.userId;
+    token = userProvider.token;
     fetchCategories();
   }
 

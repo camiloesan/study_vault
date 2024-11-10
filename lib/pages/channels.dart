@@ -23,6 +23,9 @@ class _ChannelsState extends State<Channels> {
   late List<Channel> allChannels = [];
 
   int _selectedIndex = 0;
+  int? userId;
+  int? userType;
+  String? token;
 
   void _onItemTapped(int index) {
     switch (index) {
@@ -41,8 +44,6 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<void> fetchData(int? userId, int? userType) async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final token = userProvider.token;
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
@@ -119,6 +120,9 @@ class _ChannelsState extends State<Channels> {
   void initState() {
     super.initState();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userId = userProvider.userId;
+    userType = userProvider.userTypeId;
+    token = userProvider.token;
     fetchData(userProvider.userId, userProvider.userTypeId);
   }
 
@@ -149,8 +153,6 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final token = userProvider.token;
     final url = Uri.parse('http://localhost:8082/unsubscribe');
     final headers = {
       "Content-Type": "application/json",
@@ -178,8 +180,6 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<bool> onChannelSubscribe(int userId, int channelId) async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final token = userProvider.token;
     final url = Uri.parse('http://localhost:8082/subscription');
     final headers = {
       "Content-Type": "application/json",
