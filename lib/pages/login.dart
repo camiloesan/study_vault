@@ -54,19 +54,27 @@ class _LoginState extends State<Login> {
         String name = jsonResponse['name'];
         String lastName = jsonResponse['last_name'];
         String email = jsonResponse['email'];
+        String? token = response.headers['x-token'];
 
-        Provider.of<UserProvider>(context, listen: false).loginUser(
-          userId,
-          userTypeId,
-          name,
-          lastName,
-          email,
-        );
+        if (token != null) {
+          Provider.of<UserProvider>(context, listen: false).loginUser(
+            userId,
+            userTypeId,
+            name,
+            lastName,
+            email,
+            token, // Pasa el token a UserProvider
+          );
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Channels()),
-        );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Channels()),
+          );
+        } else {
+          setState(() {
+            _errorMessage = 'Token not received from server';
+          });
+        }
       } else {
         setState(() {
           _errorMessage = 'Invalid email or password';

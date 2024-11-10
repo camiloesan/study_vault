@@ -6,20 +6,23 @@ class UserProvider with ChangeNotifier {
   String? _name;
   String? _lastName;
   String? _email;
+  String? _token;
 
   int? get userId => _userId;
   int? get userTypeId => _userTypeId;
   String? get name => _name;
   String? get lastName => _lastName;
   String? get email => _email;
+  String? get token => _token;
 
   void loginUser(
-      int userId, int userTypeId, String name, String lastName, String email) {
+      int userId, int userTypeId, String name, String lastName, String email, String token) {
     _userId = userId;
     _userTypeId = userTypeId;
     _name = name;
     _lastName = lastName;
     _email = email;
+    _token = token;
     notifyListeners();
   }
 
@@ -29,6 +32,7 @@ class UserProvider with ChangeNotifier {
     _name = null;
     _lastName = null;
     _email = null;
+    _token = null;
     notifyListeners();
   }
 

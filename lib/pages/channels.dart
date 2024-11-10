@@ -41,15 +41,22 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<void> fetchData(int? userId, int? userType) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final token = userProvider.token;
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
     bool isProfessor = userType == Constants.professorType;
 
     if (isProfessor) {
       final myChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'));
+          .get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'), headers: headers,);
       final subscribedChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
+          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'), headers: headers,);
       final allChannelsResponse =
-          await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
+          await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'), headers: headers,);
 
       if (allChannelsResponse.statusCode == 200 &&
           myChannelsResponse.statusCode == 200 &&
@@ -80,9 +87,9 @@ class _ChannelsState extends State<Channels> {
       }
     } else {
       final subscribedChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'));
+          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'), headers: headers,);
       final allChannelsResponse =
-          await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'));
+          await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'), headers: headers,);
 
       if (allChannelsResponse.statusCode == 200 &&
           subscribedChannelsResponse.statusCode == 200) {
@@ -142,8 +149,13 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final token = userProvider.token;
     final url = Uri.parse('http://localhost:8082/unsubscribe');
-    final headers = {"Content-Type": "application/json"};
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
 
     final body = jsonEncode({
       'user_id': userId,
@@ -166,8 +178,13 @@ class _ChannelsState extends State<Channels> {
   }
 
   Future<bool> onChannelSubscribe(int userId, int channelId) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final token = userProvider.token;
     final url = Uri.parse('http://localhost:8082/subscription');
-    final headers = {"Content-Type": "application/json"};
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
 
     final body = jsonEncode({
       'user_id': userId,
