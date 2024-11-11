@@ -4,10 +4,6 @@ import 'package:study_vault/pages/post_content.dart';
 import 'package:study_vault/pages/post_creation.dart';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
-import 'package:study_vault/utils/constants.dart';
-
-import 'package:provider/provider.dart';
-import 'package:study_vault/utils/user_provider.dart';
 
 class ChannelContent extends StatefulWidget {
   const ChannelContent({super.key, required this.channel, required this.isChannelCreator});
@@ -61,11 +57,6 @@ class _ChannelContentState extends State<ChannelContent> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final int? userType = userProvider.userTypeId;
-
-    bool isStudent = userType == Constants.studentType;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.channel.name),
