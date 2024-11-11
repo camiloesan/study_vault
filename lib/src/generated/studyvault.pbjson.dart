@@ -73,6 +73,30 @@ final $typed_data.Uint8List fileChunkDescriptor = $convert.base64Decode(
     'IIZmlsZW5hbWUSHQoKY2hhbm5lbF9pZBgDIAEoDVIJY2hhbm5lbElkEhQKBXRpdGxlGAQgASgJ'
     'UgV0aXRsZRIgCgtkZXNjcmlwdGlvbhgFIAEoCVILZGVzY3JpcHRpb24=');
 
+@$core.Deprecated('Use fileIdDescriptor instead')
+const FileId$json = {
+  '1': 'FileId',
+  '2': [
+    {'1': 'file_id', '3': 1, '4': 1, '5': 9, '10': 'fileId'},
+  ],
+};
+
+/// Descriptor for `FileId`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fileIdDescriptor = $convert.base64Decode(
+    'CgZGaWxlSWQSFwoHZmlsZV9pZBgBIAEoCVIGZmlsZUlk');
+
+@$core.Deprecated('Use fileNameDescriptor instead')
+const FileName$json = {
+  '1': 'FileName',
+  '2': [
+    {'1': 'filename', '3': 1, '4': 1, '5': 9, '10': 'filename'},
+  ],
+};
+
+/// Descriptor for `FileName`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fileNameDescriptor = $convert.base64Decode(
+    'CghGaWxlTmFtZRIaCghmaWxlbmFtZRgBIAEoCVIIZmlsZW5hbWU=');
+
 @$core.Deprecated('Use uploadStatusResponseDescriptor instead')
 const UploadStatusResponse$json = {
   '1': 'UploadStatusResponse',

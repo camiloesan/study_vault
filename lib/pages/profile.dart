@@ -18,22 +18,18 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  String _userName = "";
+  int? _userType = 0;
+  bool _isStudent = false;
+  String? _userEmail = "";
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
-    switch (index) {
-      case 0:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Channels()),
-        );
-        break;
-      case 1:
-      default:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Profile()),
-        );
+    if (index == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Channels()),
+      );
     }
   }
 
@@ -93,17 +89,27 @@ class _ProfileState extends State<Profile> {
         false;
   }
 
+  void fetchProfileInfo() {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    _userName = utf8.decode(
+        ("${userProvider.name ?? ""} ${userProvider.lastName ?? ""}")
+            .codeUnits);
+    _userType = userProvider.userTypeId;
+    _isStudent = _userType == Constants.studentType;
+    _userEmail = userProvider.email;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfileInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final String userName =
-        "${userProvider.name ?? ""} ${userProvider.lastName ?? ""}";
-    final int? userType = userProvider.userTypeId;
-    final bool isStudent = userType == Constants.studentType;
-    final String? userEmail = userProvider.email;
     late String userRole = "";
 
-    if (isStudent) {
+    if (_isStudent) {
       userRole = "Student";
     } else {
       userRole = "Professor";
@@ -125,7 +131,7 @@ class _ProfileState extends State<Profile> {
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(userName, style: const TextStyle(fontSize: 18)),
+                  Text(_userName, style: const TextStyle(fontSize: 18)),
                   const SizedBox(height: 16),
                   const Text("Role",
                       style:
@@ -137,7 +143,7 @@ class _ProfileState extends State<Profile> {
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(userEmail ?? "", style: const TextStyle(fontSize: 18)),
+                  Text(_userEmail ?? "", style: const TextStyle(fontSize: 18)),
                 ],
               ),
               const SizedBox(height: 32),

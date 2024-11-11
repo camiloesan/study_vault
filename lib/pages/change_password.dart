@@ -23,19 +23,11 @@ class _ChangePasswordState extends State<ChangePassword> {
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
-    switch (index) {
-      case 0:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Channels()),
-        );
-        break;
-      case 1:
-      default:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Profile()),
-        );
+    if (index == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Channels()),
+      );
     }
   }
 

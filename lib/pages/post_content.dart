@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:grpc/grpc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:study_vault/pages/comment_modification.dart';
 import 'package:study_vault/pages/profile.dart';
 import 'package:study_vault/pojos/comment.dart';
-import 'package:study_vault/src/generated/studyvault.pb.dart';
+import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -31,6 +32,29 @@ class _PostContentState extends State<PostContent> {
   String _channelName = "";
   late List<Comment> comments = [];
   Map<int, String> userNames = {};
+  late String filename = "";
+
+  Future<void> fetchGrpcData() async {
+    final channel = ClientChannel(
+      'localhost',
+      port: 8081,
+      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+    );
+    final stub = PostsServiceClient(channel);
+
+    try {
+      final response =
+          await stub.getFileNameByFileId(FileId()..fileId = widget.post.fileId);
+
+      setState(() {
+        filename = response.filename;
+      });
+    } catch (e) {
+      print('Caught error: $e');
+    }
+
+    await channel.shutdown();
+  }
 
   void _onItemTapped(int index) {
     switch (index) {
@@ -65,7 +89,7 @@ class _PostContentState extends State<PostContent> {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> commentsJson = jsonDecode(response.body);
+      List<dynamic> commentsJson = json.decode(utf8.decode(response.bodyBytes));
       setState(() {
         comments = commentsJson
             .map((json) => Comment.fromJson(json as Map<String, dynamic>))
@@ -81,14 +105,21 @@ class _PostContentState extends State<PostContent> {
   }
 
   Future<void> _setChannelName() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    String? token = userProvider.token;
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
     final int channelId = widget.post.channelId;
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8080/channel/name/$channelId'),
-    );
+        Uri.parse('http://127.0.0.1:8080/channel/name/$channelId'),
+        headers: headers);
 
     if (response.statusCode == 200) {
+      String channelNameJson = json.decode(utf8.decode(response.bodyBytes));
       setState(() {
-        _channelName = response.body;
+        _channelName = channelNameJson;
       });
     } else {
       throw Exception('Error al obtener nombre de canal');
@@ -96,10 +127,16 @@ class _PostContentState extends State<PostContent> {
   }
 
   Future<void> _setPostCreatorName() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    String? token = userProvider.token;
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
     final int channelId = widget.post.channelId;
     final response = await http.get(
-      Uri.parse('http://127.0.0.1:8080/creator/channel/$channelId'),
-    );
+        Uri.parse('http://127.0.0.1:8080/creator/channel/$channelId'),
+        headers: headers);
 
     if (response.statusCode == 200) {
       int _creatorId = 0;
@@ -117,7 +154,8 @@ class _PostContentState extends State<PostContent> {
         await http.get(Uri.parse('http://127.0.0.1:8083/user/name/$userId'));
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      final Map<String, dynamic> jsonResponse =
+          json.decode(utf8.decode(response.bodyBytes));
       String _name = "";
       String _last_name = "";
       setState(() {
@@ -174,6 +212,7 @@ class _PostContentState extends State<PostContent> {
     _fetchComments();
     _setChannelName();
     _setPostCreatorName();
+    fetchGrpcData();
   }
 
   @override
@@ -223,7 +262,7 @@ class _PostContentState extends State<PostContent> {
                         TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                 const SizedBox(height: 4),
                 ListTile(
-                  title: Text(widget.post.fileId),
+                  title: Text(filename),
                   leading: const Icon(Icons.attach_file),
                   onTap: _selectFolder,
                 ),

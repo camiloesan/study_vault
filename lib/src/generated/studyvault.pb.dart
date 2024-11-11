@@ -333,6 +333,106 @@ class FileChunk extends $pb.GeneratedMessage {
   void clearDescription() => clearField(5);
 }
 
+class FileId extends $pb.GeneratedMessage {
+  factory FileId({
+    $core.String? fileId,
+  }) {
+    final $result = create();
+    if (fileId != null) {
+      $result.fileId = fileId;
+    }
+    return $result;
+  }
+  FileId._() : super();
+  factory FileId.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FileId.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FileId', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'fileId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FileId clone() => FileId()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FileId copyWith(void Function(FileId) updates) => super.copyWith((message) => updates(message as FileId)) as FileId;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static FileId create() => FileId._();
+  FileId createEmptyInstance() => create();
+  static $pb.PbList<FileId> createRepeated() => $pb.PbList<FileId>();
+  @$core.pragma('dart2js:noInline')
+  static FileId getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FileId>(create);
+  static FileId? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get fileId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set fileId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFileId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFileId() => clearField(1);
+}
+
+class FileName extends $pb.GeneratedMessage {
+  factory FileName({
+    $core.String? filename,
+  }) {
+    final $result = create();
+    if (filename != null) {
+      $result.filename = filename;
+    }
+    return $result;
+  }
+  FileName._() : super();
+  factory FileName.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FileName.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FileName', package: const $pb.PackageName(_omitMessageNames ? '' : 'studyvault'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'filename')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FileName clone() => FileName()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FileName copyWith(void Function(FileName) updates) => super.copyWith((message) => updates(message as FileName)) as FileName;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static FileName create() => FileName._();
+  FileName createEmptyInstance() => create();
+  static $pb.PbList<FileName> createRepeated() => $pb.PbList<FileName>();
+  @$core.pragma('dart2js:noInline')
+  static FileName getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FileName>(create);
+  static FileName? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get filename => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set filename($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasFilename() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearFilename() => clearField(1);
+}
+
 class UploadStatusResponse extends $pb.GeneratedMessage {
   factory UploadStatusResponse({
     $core.bool? success,

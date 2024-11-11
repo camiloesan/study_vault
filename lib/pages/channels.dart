@@ -28,18 +28,11 @@ class _ChannelsState extends State<Channels> {
   String? token;
 
   void _onItemTapped(int index) {
-    switch (index) {
-      case 1:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Profile()),
-        );
-      case 0:
-      default:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Channels()),
-        );
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Profile()),
+      );
     }
   }
 
@@ -52,12 +45,18 @@ class _ChannelsState extends State<Channels> {
     bool isProfessor = userType == Constants.professorType;
 
     if (isProfessor) {
-      final myChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'), headers: headers,);
-      final subscribedChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'), headers: headers,);
-      final allChannelsResponse =
-          await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'), headers: headers,);
+      final myChannelsResponse = await http.get(
+        Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'),
+        headers: headers,
+      );
+      final subscribedChannelsResponse = await http.get(
+        Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'),
+        headers: headers,
+      );
+      final allChannelsResponse = await http.get(
+        Uri.parse('http://127.0.0.1:8080/channels/all'),
+        headers: headers,
+      );
 
       if (allChannelsResponse.statusCode == 200 &&
           myChannelsResponse.statusCode == 200 &&
@@ -87,10 +86,14 @@ class _ChannelsState extends State<Channels> {
         throw Exception('Failed to load data'); // Send an alert instead
       }
     } else {
-      final subscribedChannelsResponse = await http
-          .get(Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'), headers: headers,);
-      final allChannelsResponse =
-          await http.get(Uri.parse('http://127.0.0.1:8080/channels/all'), headers: headers,);
+      final subscribedChannelsResponse = await http.get(
+        Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'),
+        headers: headers,
+      );
+      final allChannelsResponse = await http.get(
+        Uri.parse('http://127.0.0.1:8080/channels/all'),
+        headers: headers,
+      );
 
       if (allChannelsResponse.statusCode == 200 &&
           subscribedChannelsResponse.statusCode == 200) {
@@ -128,8 +131,8 @@ class _ChannelsState extends State<Channels> {
 
   void createChannel() async {
     await showDialog(
-        context: context,
-        builder: (context) => const ChannelCreation(),
+      context: context,
+      builder: (context) => const ChannelCreation(),
     );
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     await fetchData(userProvider.userId, userProvider.userTypeId);
@@ -149,7 +152,9 @@ class _ChannelsState extends State<Channels> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ChannelContent(channel: channel, isChannelCreator: userProvider.userId == channel.creatorId)));
+            builder: (context) => ChannelContent(
+                channel: channel,
+                isChannelCreator: userProvider.userId == channel.creatorId)));
   }
 
   Future<bool> onChannelUnsubscribe(int userId, int channelId) async {

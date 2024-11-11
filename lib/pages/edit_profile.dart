@@ -16,24 +16,16 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _lastNameController = TextEditingController();
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
-    switch (index) {
-      case 0:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Channels()),
-        );
-        break;
-      case 1:
-      default:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Profile()),
-        );
+    if (index == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Channels()),
+      );
     }
   }
 
@@ -55,12 +47,9 @@ class _EditProfileState extends State<EditProfile> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Profile updated")),
       );
-      Provider.of<UserProvider>(context, listen: false)
-          .updateUserInfo(_nameController.text, _lastNameController.text);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Profile()),
-      );
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final int? userId = userProvider.userId;
+      _setUserName(userId);
     } else {
       final errorResponse = json.decode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -69,6 +58,40 @@ class _EditProfileState extends State<EditProfile> {
                 "Error: ${errorResponse['message'] ?? 'Error al actualizarse'}")),
       );
     }
+  }
+
+  Future<void> _setUserName(int? userId) async {
+    final response =
+        await http.get(Uri.parse('http://127.0.0.1:8083/user/name/$userId'));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      String _name = "";
+      String _last_name = "";
+      setState(() {
+        _name = jsonResponse['name'] as String;
+        _last_name = jsonResponse['last_name'] as String;
+      });
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.updateUserInfo(_name, _last_name);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Profile()),
+      );
+    } else {
+      throw Exception('Error al obtener nombre de usuario');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final String userName = utf8.decode((userProvider.name ?? "").codeUnits);
+    final String userLastName =
+        utf8.decode((userProvider.lastName ?? "").codeUnits);
+    _nameController = TextEditingController(text: userName);
+    _lastNameController = TextEditingController(text: userLastName);
   }
 
   @override

@@ -29,6 +29,10 @@ class PostsServiceClient extends $grpc.Client {
       '/studyvault.PostsService/UploadPost',
       ($0.FileChunk value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.UploadStatusResponse.fromBuffer(value));
+  static final _$getFileNameByFileId = $grpc.ClientMethod<$0.FileId, $0.FileName>(
+      '/studyvault.PostsService/GetFileNameByFileId',
+      ($0.FileId value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.FileName.fromBuffer(value));
 
   PostsServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -42,6 +46,10 @@ class PostsServiceClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.UploadStatusResponse> uploadPost($async.Stream<$0.FileChunk> request, {$grpc.CallOptions? options}) {
     return $createStreamingCall(_$uploadPost, request, options: options).single;
+  }
+
+  $grpc.ResponseFuture<$0.FileName> getFileNameByFileId($0.FileId request, {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getFileNameByFileId, request, options: options);
   }
 }
 
@@ -64,12 +72,24 @@ abstract class PostsServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.FileChunk.fromBuffer(value),
         ($0.UploadStatusResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FileId, $0.FileName>(
+        'GetFileNameByFileId',
+        getFileNameByFileId_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FileId.fromBuffer(value),
+        ($0.FileName value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.PostsResponse> getPostsByChannelId_Pre($grpc.ServiceCall call, $async.Future<$0.ChannelRequest> request) async {
     return getPostsByChannelId(call, await request);
   }
 
+  $async.Future<$0.FileName> getFileNameByFileId_Pre($grpc.ServiceCall call, $async.Future<$0.FileId> request) async {
+    return getFileNameByFileId(call, await request);
+  }
+
   $async.Future<$0.PostsResponse> getPostsByChannelId($grpc.ServiceCall call, $0.ChannelRequest request);
   $async.Future<$0.UploadStatusResponse> uploadPost($grpc.ServiceCall call, $async.Stream<$0.FileChunk> request);
+  $async.Future<$0.FileName> getFileNameByFileId($grpc.ServiceCall call, $0.FileId request);
 }
