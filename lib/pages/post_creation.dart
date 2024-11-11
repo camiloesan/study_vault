@@ -21,6 +21,10 @@ class _PostCreationState extends State<PostCreation> {
   String selectedFileName = "";
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  Color _buttonColor = Colors.transparent;
+  String? _titleErrorText;
+  String? _descriptionErrorText;
+  String? _fileErrorText;
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +41,12 @@ class _PostCreationState extends State<PostCreation> {
             TextField(
               controller: _titleController,
               maxLength: 32,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                errorBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red, width: 2.0),
+                ),
+                errorText: _titleErrorText,
               ),
             ),
             const SizedBox(height: 8.0),
@@ -54,16 +62,21 @@ class _PostCreationState extends State<PostCreation> {
                 maxLength: 256,
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  errorBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red, width: 2.0),
+                  ),
+                  errorText: _descriptionErrorText,
                 ),
               ),
             ),
             const SizedBox(height: 8.0),
             TextButton.icon(
+              style: ElevatedButton.styleFrom( backgroundColor: _buttonColor ),
               icon: Icon(
                 selectedFilePath == "" ? Icons.attach_file : Icons.check_circle,
-                color: selectedFilePath == "" ? null : Colors.green,
+                color: selectedFilePath == "" ? null: Colors.green,
               ),
               label: Text(
                 selectedFilePath == ""
@@ -72,6 +85,16 @@ class _PostCreationState extends State<PostCreation> {
               ),
               onPressed: pickFile,
             ),
+
+            if (_fileErrorText != null) 
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  _fileErrorText!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+
             const SizedBox(height: 32.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -84,6 +107,10 @@ class _PostCreationState extends State<PostCreation> {
                 const SizedBox(width: 12.0),
                 ElevatedButton(
                     onPressed: () async {
+
+                      bool isValid = areFieldsValid();
+                      if (!isValid) return;
+
                       var result = uploadPost(
                           filePath: selectedFilePath,
                           channelId: widget.channel.channelId,
@@ -115,6 +142,47 @@ class _PostCreationState extends State<PostCreation> {
         ),
       ),
     );
+  }
+
+  bool areFieldsValid() {
+    bool result = true;
+
+    if (selectedFilePath == "") {
+      setState(() {
+        _buttonColor = Colors.red.shade100;
+        _fileErrorText = 'You must upload a file';
+      });
+      result = false;
+    } else {
+      setState(() {
+        _buttonColor = Colors.transparent;
+        _fileErrorText = null;
+      });
+    }
+
+    if (_titleController.text.isEmpty) {
+      setState(() {
+        _titleErrorText = 'This field cannot be empty';
+      });
+      result = false;
+    } else {
+      setState(() {
+        _titleErrorText = null;
+      });
+    }
+
+    if (_descriptionController.text.isEmpty) {
+      setState(() {
+        _descriptionErrorText = 'This field cannot be empty';
+      });
+      result = false;
+    } else {
+      setState(() {
+        _descriptionErrorText = null;
+      });
+    }
+
+    return result;
   }
 
   Future<bool> uploadPost({
