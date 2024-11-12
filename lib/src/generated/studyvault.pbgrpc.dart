@@ -33,6 +33,10 @@ class PostsServiceClient extends $grpc.Client {
       '/studyvault.PostsService/GetFileNameByFileId',
       ($0.FileId value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.FileName.fromBuffer(value));
+  static final _$downloadFile = $grpc.ClientMethod<$0.FileDownloadRequest, $0.FileData>(
+      '/studyvault.PostsService/DownloadFile',
+      ($0.FileDownloadRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.FileData.fromBuffer(value));
 
   PostsServiceClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -50,6 +54,10 @@ class PostsServiceClient extends $grpc.Client {
 
   $grpc.ResponseFuture<$0.FileName> getFileNameByFileId($0.FileId request, {$grpc.CallOptions? options}) {
     return $createUnaryCall(_$getFileNameByFileId, request, options: options);
+  }
+
+  $grpc.ResponseStream<$0.FileData> downloadFile($0.FileDownloadRequest request, {$grpc.CallOptions? options}) {
+    return $createStreamingCall(_$downloadFile, $async.Stream.fromIterable([request]), options: options);
   }
 }
 
@@ -79,6 +87,13 @@ abstract class PostsServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.FileId.fromBuffer(value),
         ($0.FileName value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FileDownloadRequest, $0.FileData>(
+        'DownloadFile',
+        downloadFile_Pre,
+        false,
+        true,
+        ($core.List<$core.int> value) => $0.FileDownloadRequest.fromBuffer(value),
+        ($0.FileData value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.PostsResponse> getPostsByChannelId_Pre($grpc.ServiceCall call, $async.Future<$0.ChannelRequest> request) async {
@@ -89,7 +104,12 @@ abstract class PostsServiceBase extends $grpc.Service {
     return getFileNameByFileId(call, await request);
   }
 
+  $async.Stream<$0.FileData> downloadFile_Pre($grpc.ServiceCall call, $async.Future<$0.FileDownloadRequest> request) async* {
+    yield* downloadFile(call, await request);
+  }
+
   $async.Future<$0.PostsResponse> getPostsByChannelId($grpc.ServiceCall call, $0.ChannelRequest request);
   $async.Future<$0.UploadStatusResponse> uploadPost($grpc.ServiceCall call, $async.Stream<$0.FileChunk> request);
   $async.Future<$0.FileName> getFileNameByFileId($grpc.ServiceCall call, $0.FileId request);
+  $async.Stream<$0.FileData> downloadFile($grpc.ServiceCall call, $0.FileDownloadRequest request);
 }

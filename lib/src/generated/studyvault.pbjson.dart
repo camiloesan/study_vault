@@ -97,6 +97,34 @@ const FileName$json = {
 final $typed_data.Uint8List fileNameDescriptor = $convert.base64Decode(
     'CghGaWxlTmFtZRIaCghmaWxlbmFtZRgBIAEoCVIIZmlsZW5hbWU=');
 
+@$core.Deprecated('Use fileDataDescriptor instead')
+const FileData$json = {
+  '1': 'FileData',
+  '2': [
+    {'1': 'content', '3': 1, '4': 1, '5': 12, '10': 'content'},
+    {'1': 'filename', '3': 2, '4': 1, '5': 9, '10': 'filename'},
+  ],
+};
+
+/// Descriptor for `FileData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fileDataDescriptor = $convert.base64Decode(
+    'CghGaWxlRGF0YRIYCgdjb250ZW50GAEgASgMUgdjb250ZW50EhoKCGZpbGVuYW1lGAIgASgJUg'
+    'hmaWxlbmFtZQ==');
+
+@$core.Deprecated('Use fileDownloadRequestDescriptor instead')
+const FileDownloadRequest$json = {
+  '1': 'FileDownloadRequest',
+  '2': [
+    {'1': 'file_id', '3': 1, '4': 1, '5': 9, '10': 'fileId'},
+    {'1': 'channel_id', '3': 2, '4': 1, '5': 13, '10': 'channelId'},
+  ],
+};
+
+/// Descriptor for `FileDownloadRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fileDownloadRequestDescriptor = $convert.base64Decode(
+    'ChNGaWxlRG93bmxvYWRSZXF1ZXN0EhcKB2ZpbGVfaWQYASABKAlSBmZpbGVJZBIdCgpjaGFubm'
+    'VsX2lkGAIgASgNUgljaGFubmVsSWQ=');
+
 @$core.Deprecated('Use uploadStatusResponseDescriptor instead')
 const UploadStatusResponse$json = {
   '1': 'UploadStatusResponse',
