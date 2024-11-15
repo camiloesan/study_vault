@@ -33,6 +33,7 @@ class _PostContentState extends State<PostContent> {
   late List<Comment> comments = [];
   Map<int, String> userNames = {};
   late String filename = "";
+  String? token;
 
   Future<void> fetchGrpcData() async {
     final channel = ClientChannel(
@@ -84,9 +85,14 @@ class _PostContentState extends State<PostContent> {
 
   Future<void> _fetchComments() async {
     final int postId = widget.post.postId;
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8084/comment/all/$postId'),
-    );
+    final url = Uri.parse('http://127.0.0.1:8084/comment/all/$postId');
+
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
+    final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
       List<dynamic> commentsJson = json.decode(utf8.decode(response.bodyBytes));
@@ -173,7 +179,10 @@ class _PostContentState extends State<PostContent> {
     final int? userId = userProvider.userId;
     final response = await http.post(
       Uri.parse('http://127.0.0.1:8084/comment'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": "Bearer $token",
+      },
       body: json.encode({
         'post_id': widget.post.postId,
         'user_id': userId,
@@ -209,6 +218,8 @@ class _PostContentState extends State<PostContent> {
   @override
   void initState() {
     super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    token = userProvider.token;
     _fetchComments();
     _setChannelName();
     _setPostCreatorName();
