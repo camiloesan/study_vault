@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:study_vault/pojos/category.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
+import 'package:study_vault/pages/login.dart';
+
 
 class ChannelCreation extends StatefulWidget {
   const ChannelCreation({super.key});
@@ -61,6 +63,30 @@ class _ChannelCreationState extends State<ChannelCreation>{
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Channel created successfully!')),
+        );
+      } else if (response.statusCode == 401) {
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.logoutUser();
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Session Expired"),
+              content: Text("Your session has expired. Please log in again."),
+              actions: [
+                TextButton(
+                  child: Text("Log In"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Login()),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         );
       } else {
         throw Exception('Failed to create channel');
