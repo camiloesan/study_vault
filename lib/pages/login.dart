@@ -63,7 +63,7 @@ class _LoginState extends State<Login> {
             name,
             lastName,
             email,
-            token, // Pasa el token a UserProvider
+            token,
           );
 
           Navigator.push(

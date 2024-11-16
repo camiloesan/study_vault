@@ -5,6 +5,7 @@ import 'package:study_vault/pojos/category.dart';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
+import 'package:study_vault/pages/login.dart';
 
 class ChannelModification extends StatefulWidget {
   final Channel channel;
@@ -17,12 +18,12 @@ class ChannelModification extends StatefulWidget {
 
 class _ChannelModificationState extends State<ChannelModification> {
   late List<Category> categories = [];
+  late TextEditingController nameController;
+  late TextEditingController descriptionController;
+
   Category? selectedCategory;
   String _errorMessage = '';
   String? token;
-
-  late TextEditingController nameController;
-  late TextEditingController descriptionController;
 
   Future<void> updateChannel() async {
     final url = Uri.parse(
@@ -47,6 +48,8 @@ class _ChannelModificationState extends State<ChannelModification> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Channel updated successfully!')),
         );
+      } else if (response.statusCode == 401) {
+        handleSessionExpiration(context);
       } else {
         setState(() {
           _errorMessage = 'Failed to update channel';
@@ -74,6 +77,8 @@ class _ChannelModificationState extends State<ChannelModification> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Channel deleted successfully!')),
         );
+      } else if (response.statusCode == 401) {
+        handleSessionExpiration(context);
       } else {
         setState(() {
           _errorMessage = 'Failed to delete channel';
@@ -134,9 +139,37 @@ class _ChannelModificationState extends State<ChannelModification> {
         selectedCategory = categories.firstWhere(
             (category) => category.name == widget.channel.categoryName);
       });
+    } else if (response.statusCode == 401) {
+        handleSessionExpiration(context);
     } else {
       throw Exception('Failed to load categories');
     }
+  }
+
+  void handleSessionExpiration(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.logoutUser();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("Log In"),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
