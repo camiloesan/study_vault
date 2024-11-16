@@ -11,6 +11,7 @@ import 'package:study_vault/pages/profile.dart';
 import 'package:study_vault/pojos/comment.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/user_provider.dart';
+import 'package:study_vault/pages/login.dart';
 import 'package:http/http.dart' as http;
 
 class PostContent extends StatefulWidget {
@@ -105,6 +106,8 @@ class _PostContentState extends State<PostContent> {
         String name = await _getUserName(comment.userId);
         userNames[comment.userId] = name;
       }
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       throw Exception('Error al obtener los correos');
     }
@@ -127,6 +130,8 @@ class _PostContentState extends State<PostContent> {
       setState(() {
         _channelName = channelNameJson;
       });
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       throw Exception('Error al obtener nombre de canal');
     }
@@ -150,6 +155,8 @@ class _PostContentState extends State<PostContent> {
         _creatorId = int.parse(response.body);
       });
       _postCreatorName = await _getUserName(_creatorId);
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       throw Exception('Error al obtener nombre de canal');
     }
@@ -197,6 +204,8 @@ class _PostContentState extends State<PostContent> {
       );
       _fetchComments();
       build(context);
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       final errorResponse = json.decode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -213,6 +222,32 @@ class _PostContentState extends State<PostContent> {
       builder: (context) => CommentModification(comment: comment),
     );
     _fetchComments();
+  }
+
+  void handleSessionExpiration(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.logoutUser();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("Log In"),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

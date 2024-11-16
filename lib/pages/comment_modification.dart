@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:study_vault/pojos/comment.dart';
 import 'package:study_vault/utils/user_provider.dart';
+import 'package:study_vault/pages/login.dart';
 
 class CommentModification extends StatefulWidget {
   final Comment comment;
@@ -42,6 +43,8 @@ class _CommentModificationState extends State<CommentModification> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Comment updated successfully!')),
         );
+      } else if (response.statusCode == 401) {
+        handleSessionExpiration(context);
       } else {
         setState(() {
           _errorMessage = 'Failed to update comment';
@@ -52,7 +55,7 @@ class _CommentModificationState extends State<CommentModification> {
     }
   }
 
-  Future<void> deleteChannel() async {
+  Future<void> deleteComment() async {
     final url = Uri.parse(
         'http://127.0.0.1:8084/comment/delete/${widget.comment.commentId}');
 
@@ -69,6 +72,8 @@ class _CommentModificationState extends State<CommentModification> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Comment deleted successfully!')),
         );
+      } else if (response.statusCode == 401) {
+        handleSessionExpiration(context);
       } else {
         setState(() {
           _errorMessage = 'Failed to delete comment';
@@ -106,8 +111,34 @@ class _CommentModificationState extends State<CommentModification> {
     );
 
     if (confirm == true) {
-      await deleteChannel();
+      await deleteComment();
     }
+  }
+
+  void handleSessionExpiration(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.logoutUser();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("Log In"),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -169,7 +200,7 @@ class _CommentModificationState extends State<CommentModification> {
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
                 controller: commentController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) {
@@ -181,7 +212,7 @@ class _CommentModificationState extends State<CommentModification> {
             if (_errorMessage.isNotEmpty)
               Text(
                 _errorMessage,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red,
                   fontSize: 14,
                 ),
