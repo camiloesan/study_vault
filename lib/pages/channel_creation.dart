@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:study_vault/pages/login.dart';
 
-
 class ChannelCreation extends StatefulWidget {
   const ChannelCreation({super.key});
 
@@ -14,12 +13,12 @@ class ChannelCreation extends StatefulWidget {
   State<ChannelCreation> createState() => _ChannelCreationState();
 }
 
-class _ChannelCreationState extends State<ChannelCreation>{
+class _ChannelCreationState extends State<ChannelCreation> {
   late List<Category> categories = [];
   Category? selectedCategory;
   String channelName = '';
   String channelDescription = '';
-  String _errorMessage = ''; 
+  String _errorMessage = '';
 
   int? userId;
   String? token;
@@ -30,13 +29,21 @@ class _ChannelCreationState extends State<ChannelCreation>{
       "Authorization": "Bearer $token",
     };
 
-    final response = await http.get(Uri.parse('http://127.0.0.1:8080/categories/all'), headers: headers,);
+    final response = await http.get(
+      Uri.parse('http://127.0.0.1:8080/categories/all'),
+      headers: headers,
+    );
 
     if (response.statusCode == 200) {
-      List<dynamic> jsonCategories = json.decode(utf8.decode(response.bodyBytes));
+      List<dynamic> jsonCategories =
+          json.decode(utf8.decode(response.bodyBytes));
       setState(() {
-        categories = jsonCategories.map((category) => Category.fromJson(category)).toList();
+        categories = jsonCategories
+            .map((category) => Category.fromJson(category))
+            .toList();
       });
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       throw Exception('Failed to load categories');
     }
@@ -65,35 +72,39 @@ class _ChannelCreationState extends State<ChannelCreation>{
           const SnackBar(content: Text('Channel created successfully!')),
         );
       } else if (response.statusCode == 401) {
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.logoutUser();
-
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Session Expired"),
-              content: Text("Your session has expired. Please log in again."),
-              actions: [
-                TextButton(
-                  child: Text("Log In"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Login()),
-                    );
-                  },
-                ),
-              ],
-            );
-          },
-        );
+        handleSessionExpiration(context);
       } else {
         throw Exception('Failed to create channel');
       }
     } catch (e) {
-        print('Error: $e');
+      print('Error: $e');
     }
+  }
+
+  void handleSessionExpiration(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.logoutUser();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("Log In"),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -110,127 +121,114 @@ class _ChannelCreationState extends State<ChannelCreation>{
     return AlertDialog(
       content: SizedBox(
         height: 520,
-          width: 700,
-          child: Column(
-            children: [
-              const Text(
-                'New Channel',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
+        width: 700,
+        child: Column(
+          children: [
+            const Text(
+              'New Channel',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12.0),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Name'),
+            ),
+            TextField(
+              maxLength: 32,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
               ),
-
-              const SizedBox(height: 12.0),
-
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Name'),
-              ),
-
-              TextField(
-                maxLength: 32,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
+              onChanged: (value) {
                 setState(() {
                   channelName = value;
                 });
               },
-              ),
-
-              const SizedBox(height: 8.0),
-
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Description'),
-              ),
-
-              Expanded(
-                child: TextField(
-                  textAlignVertical: TextAlignVertical.top,
-                  expands: true,
-                  maxLength: 256,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) {
+            ),
+            const SizedBox(height: 8.0),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Description'),
+            ),
+            Expanded(
+              child: TextField(
+                textAlignVertical: TextAlignVertical.top,
+                expands: true,
+                maxLength: 256,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
                   setState(() {
                     channelDescription = value;
                   });
                 },
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Select Category'),
+            ),
+            const SizedBox(height: 8.0),
+            DropdownButtonFormField<Category>(
+              value: selectedCategory,
+              hint: const Text('Choose a category'),
+              items: categories.map((category) {
+                return DropdownMenuItem<Category>(
+                  value: category,
+                  child: Text(category.name),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedCategory = value;
+                });
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            if (_errorMessage.isNotEmpty)
+              Text(
+                _errorMessage,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 14,
                 ),
               ),
-
-              const SizedBox(height: 8.0),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Select Category'),
+            const SizedBox(height: 32.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel'),
                 ),
-              
-              const SizedBox(height: 8.0),
-              DropdownButtonFormField<Category>(
-                value: selectedCategory,
-                hint: const Text('Choose a category'),
-                items: categories.map((category) {
-                  return DropdownMenuItem<Category>(
-                    value: category,
-                    child: Text(category.name),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-              ),
-
-              const SizedBox(height: 8.0),
-              
-              if (_errorMessage.isNotEmpty)
-                Text(
-                  _errorMessage,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
-                ),
-            
-              const SizedBox(height: 32.0),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Cancel'),
-                  ),
-
-                  const SizedBox(width: 12.0),
-
-                  ElevatedButton(
-                    onPressed: () {
-                      if (channelName.isNotEmpty && selectedCategory != null && channelDescription.isNotEmpty) {
-                        createChannel();
-                      } else {
-                        setState(() {
+                const SizedBox(width: 12.0),
+                ElevatedButton(
+                  onPressed: () {
+                    if (channelName.isNotEmpty &&
+                        selectedCategory != null &&
+                        channelDescription.isNotEmpty) {
+                      createChannel();
+                    } else {
+                      setState(() {
                         _errorMessage = 'Please fill all fields';
-                        });
-                      }
-                    },
-                    child: const Text('Create'),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                      });
+                    }
+                  },
+                  child: const Text('Create'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-  
