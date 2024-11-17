@@ -6,6 +6,7 @@ import 'package:study_vault/pages/Change_password.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/edit_profile.dart';
 import 'package:study_vault/pages/landing_launch.dart';
+import 'package:study_vault/pages/login.dart';
 import 'package:study_vault/utils/constants.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
@@ -23,6 +24,7 @@ class _ProfileState extends State<Profile> {
   bool _isStudent = false;
   String? _userEmail = "";
   int _selectedIndex = 1;
+  String? token;
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -37,10 +39,13 @@ class _ProfileState extends State<Profile> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final int? userId = userProvider.userId;
 
-    final response = await http.delete(
-        Uri.parse('http://127.0.0.1:8083/delete/$userId'),
-        headers: {'Content-Type': 'application/json'},
-        body: userId.toString());
+    final response =
+        await http.delete(Uri.parse('http://127.0.0.1:8083/delete/$userId'),
+            headers: {
+              'Content-Type': 'application/json',
+              "Authorization": "Bearer $token",
+            },
+            body: userId.toString());
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -51,6 +56,8 @@ class _ProfileState extends State<Profile> {
         context,
         MaterialPageRoute(builder: (context) => const LandingLaunch()),
       );
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       final errorResponse = json.decode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -99,9 +106,37 @@ class _ProfileState extends State<Profile> {
     _userEmail = userProvider.email;
   }
 
+  void handleSessionExpiration(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.logoutUser();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("Log In"),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    token = userProvider.token;
     fetchProfileInfo();
   }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:grpc/grpc.dart';
@@ -27,6 +28,7 @@ class _PostContentState extends State<PostContent> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _commentController = TextEditingController();
   String _postCreatorName = "";
+  String _UserName = "";
   int _rating = 0;
   int _selectedIndex = 1;
   String? _folderPath;
@@ -75,15 +77,6 @@ class _PostContentState extends State<PostContent> {
     }
   }
 
-  Future<void> _selectFolder() async {
-    final result = await FilePicker.platform.getDirectoryPath();
-    if (result != null) {
-      setState(() {
-        _folderPath = result;
-      });
-    }
-  }
-
   Future<void> _fetchComments() async {
     final int postId = widget.post.postId;
     final url = Uri.parse('http://127.0.0.1:8084/comment/all/$postId');
@@ -103,7 +96,8 @@ class _PostContentState extends State<PostContent> {
             .toList();
       });
       for (var comment in comments) {
-        String name = await _getUserName(comment.userId);
+        await _setUserName(comment.userId);
+        String name = _UserName;
         userNames[comment.userId] = name;
       }
     } else if (response.statusCode == 401) {
@@ -154,7 +148,8 @@ class _PostContentState extends State<PostContent> {
       setState(() {
         _creatorId = int.parse(response.body);
       });
-      _postCreatorName = await _getUserName(_creatorId);
+      await _setUserName(_creatorId);
+      _postCreatorName = _UserName;
     } else if (response.statusCode == 401) {
       handleSessionExpiration(context);
     } else {
@@ -162,9 +157,12 @@ class _PostContentState extends State<PostContent> {
     }
   }
 
-  Future<String> _getUserName(int userId) async {
-    final response =
-        await http.get(Uri.parse('http://127.0.0.1:8083/user/name/$userId'));
+  Future<void> _setUserName(int userId) async {
+    final response = await http
+        .get(Uri.parse('http://127.0.0.1:8083/user/name/$userId'), headers: {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer $token",
+    });
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse =
@@ -175,7 +173,9 @@ class _PostContentState extends State<PostContent> {
         _name = jsonResponse['name'] as String;
         _last_name = jsonResponse['last_name'] as String;
       });
-      return '$_name $_last_name';
+      _UserName = '$_name $_last_name';
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       throw Exception('Error al obtener nombre de usuario');
     }
@@ -222,6 +222,63 @@ class _PostContentState extends State<PostContent> {
       builder: (context) => CommentModification(comment: comment),
     );
     _fetchComments();
+  }
+
+  Future<void> _downloadFile() async {
+    final result = await FilePicker.platform.getDirectoryPath();
+    if (result != null) {
+      setState(() {
+        _folderPath = result;
+      });
+    }
+
+    if (_folderPath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text("Por favor selecciona una carpeta primero")),
+      );
+      return;
+    }
+
+    final channel = ClientChannel(
+      'localhost',
+      port: 8081,
+      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+    );
+    final stub = PostsServiceClient(channel);
+
+    try {
+      final responseStream = stub.downloadFile(FileDownloadRequest()
+        ..channelId = widget.post.channelId
+        ..fileId = widget.post.fileId);
+
+      final filePath = '$_folderPath/$filename';
+      final file = File(filePath);
+      final fileSink = file.openWrite();
+
+      int totalBytes = 0;
+      await for (var fileDataChunk in responseStream) {
+        totalBytes += fileDataChunk.content.length;
+        fileSink.add(fileDataChunk.content);
+        print(
+            'Recibido chunk de tamaño: ${fileDataChunk.content.length} bytes');
+      }
+
+      await fileSink.close();
+      print('Archivo descargado, tamaño total: $totalBytes bytes');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Archivo descargado en $filePath")),
+      );
+    } catch (e) {
+      print('Error al descargar el archivo: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error al descargar el archivo")),
+      );
+    } finally {
+      await channel.shutdown();
+      _folderPath = null;
+    }
   }
 
   void handleSessionExpiration(BuildContext context) {
@@ -310,7 +367,7 @@ class _PostContentState extends State<PostContent> {
                 ListTile(
                   title: Text(filename),
                   leading: const Icon(Icons.attach_file),
-                  onTap: _selectFolder,
+                  onTap: _downloadFile,
                 ),
                 const Text("Rating",
                     style:

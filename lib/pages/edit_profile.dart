@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/profile.dart';
+import 'package:study_vault/pages/login.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,6 +20,7 @@ class _EditProfileState extends State<EditProfile> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
   int _selectedIndex = 1;
+  String? token;
 
   void _onItemTapped(int index) {
     if (index == 0) {
@@ -35,7 +37,10 @@ class _EditProfileState extends State<EditProfile> {
 
     final response = await http.put(
       Uri.parse('http://127.0.0.1:8083/update/$userId'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        "Authorization": "Bearer $token",
+      },
       body: json.encode({
         'id': userId,
         'name': _nameController.text,
@@ -50,6 +55,8 @@ class _EditProfileState extends State<EditProfile> {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       final int? userId = userProvider.userId;
       _setUserName(userId);
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       final errorResponse = json.decode(response.body);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -61,8 +68,11 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> _setUserName(int? userId) async {
-    final response =
-        await http.get(Uri.parse('http://127.0.0.1:8083/user/name/$userId'));
+    final response = await http
+        .get(Uri.parse('http://127.0.0.1:8083/user/name/$userId'), headers: {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer $token",
+    });
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
@@ -78,15 +88,44 @@ class _EditProfileState extends State<EditProfile> {
         context,
         MaterialPageRoute(builder: (context) => const Profile()),
       );
+    } else if (response.statusCode == 401) {
+      handleSessionExpiration(context);
     } else {
       throw Exception('Error al obtener nombre de usuario');
     }
+  }
+
+  void handleSessionExpiration(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.logoutUser();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Session Expired"),
+          content: Text("Your session has expired. Please log in again."),
+          actions: [
+            TextButton(
+              child: Text("Log In"),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   void initState() {
     super.initState();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    token = userProvider.token;
     final String userName = utf8.decode((userProvider.name ?? "").codeUnits);
     final String userLastName =
         utf8.decode((userProvider.lastName ?? "").codeUnits);
