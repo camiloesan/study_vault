@@ -18,8 +18,6 @@ class LandingLaunch extends StatelessWidget {
               height: 165,
               child: Image.asset('assets/images/logor.png'),
             ),
-            const Text("Small description",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
             const Spacer(),
             Transform.scale(
               scale: 1.2,
