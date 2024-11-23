@@ -294,9 +294,18 @@ class _ChannelModificationState extends State<ChannelModification> {
                 ElevatedButton(
                   onPressed: () {
                     if (nameController.text.isNotEmpty &&
-                        selectedCategory != null &&
-                        descriptionController.text.isNotEmpty) {
-                      updateChannel();
+                      selectedCategory != null &&
+                      descriptionController.text.isNotEmpty) {
+                        if (nameController.text == widget.channel.name &&
+                          descriptionController.text == widget.channel.description &&
+                          selectedCategory?.name == widget.channel.categoryName) {
+                            Navigator.pop(context, true);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('No changes detected, channel is already up to date.')),
+                            );
+                        } else {
+                          updateChannel();
+                        }
                     } else {
                       setState(() {
                         _errorMessage = 'Please fill all fields';
