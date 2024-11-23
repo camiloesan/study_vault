@@ -65,7 +65,7 @@ class _PostCreationState extends State<PostCreation> {
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   errorBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red, width: 2.0),
+                    borderSide: BorderSide(color: Colors.red, width: 2.0),
                   ),
                   errorText: _descriptionErrorText,
                 ),
@@ -73,10 +73,10 @@ class _PostCreationState extends State<PostCreation> {
             ),
             const SizedBox(height: 8.0),
             TextButton.icon(
-              style: ElevatedButton.styleFrom( backgroundColor: _buttonColor ),
+              style: ElevatedButton.styleFrom(backgroundColor: _buttonColor),
               icon: Icon(
                 selectedFilePath == "" ? Icons.attach_file : Icons.check_circle,
-                color: selectedFilePath == "" ? null: Colors.green,
+                color: selectedFilePath == "" ? null : Colors.green,
               ),
               label: Text(
                 selectedFilePath == ""
@@ -85,8 +85,7 @@ class _PostCreationState extends State<PostCreation> {
               ),
               onPressed: pickFile,
             ),
-
-            if (_fileErrorText != null) 
+            if (_fileErrorText != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(
@@ -94,7 +93,6 @@ class _PostCreationState extends State<PostCreation> {
                   style: const TextStyle(color: Colors.red),
                 ),
               ),
-
             const SizedBox(height: 32.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -107,7 +105,6 @@ class _PostCreationState extends State<PostCreation> {
                 const SizedBox(width: 12.0),
                 ElevatedButton(
                     onPressed: () async {
-
                       bool isValid = areFieldsValid();
                       if (!isValid) return;
 
@@ -116,21 +113,24 @@ class _PostCreationState extends State<PostCreation> {
                           channelId: widget.channel.channelId,
                           title: _titleController.text,
                           description: _descriptionController.text,
-                          filename: selectedFileName
-                        );
+                          filename: selectedFileName);
 
                       if (await result) {
                         if (context.mounted) {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Post created succesfully!')),
+                            const SnackBar(
+                                content: Text('Post created succesfully!')),
                           );
                         }
                       } else {
                         if (context.mounted) {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Post could not be created, try again later'), backgroundColor: Colors.redAccent),
+                            const SnackBar(
+                                content: Text(
+                                    'Post could not be created, try again later'),
+                                backgroundColor: Colors.redAccent),
                           );
                         }
                       }
@@ -205,33 +205,29 @@ class _PostCreationState extends State<PostCreation> {
     final file = File(filePath);
 
     try {
-      final controller = StreamController<FileChunk>();
-      final fileStream = file.openRead();
-      fileStream
-          .cast<List<int>>()
-          .asyncMap((chunk) => FileChunk()
-            ..content = chunk
-            ..filename = filename
-            ..channelId = channelId
-            ..title = title
-            ..description = description)
-          .listen((chunk) => controller.add(chunk),
-              onDone: () => controller.close(),
-              onError: (error) {
-                print('Error reading file: $error');
-                controller.close();
-              });
+      final fileStream = StreamController<FileChunk>();
+      final inputStream = file.openRead();
 
-      final response = await stub.uploadPost(controller.stream);
+      inputStream.listen(
+        (data) {
+          final chunk = FileChunk(
+            content: data,
+            filename: filename,
+            channelId: channelId,
+            title: title,
+            description: description,
+          );
+          fileStream.add(chunk);
+        },
+        onDone: () => fileStream.close(),
+        onError: (error) => fileStream.addError(error),
+      );
+
+      final response = await stub.uploadPost(fileStream.stream);
 
       if (response.success) {
         isSuccess = true;
-        print('Upload successful: ${response.message}');
-      } else {
-        print('Upload failed: ${response.message}');
       }
-    } catch (e) {
-      print('Caught error: $e');
     } finally {
       await channel.shutdown();
     }
