@@ -4,6 +4,7 @@ import 'package:study_vault/pages/login.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class UpdatePassword extends StatefulWidget {
   final String email;
@@ -39,11 +40,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
         MaterialPageRoute(builder: (context) => const Login()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text("Error al actualizarse, intenta con otra contraseña")),
-      );
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 

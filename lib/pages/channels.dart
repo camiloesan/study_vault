@@ -9,6 +9,7 @@ import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class Channels extends StatefulWidget {
   const Channels({super.key});
@@ -82,8 +83,12 @@ class _ChannelsState extends State<Channels> {
               (subscribedChannel) =>
                   subscribedChannel.channelId == channel.channelId));
         });
+      } else if (allChannelsResponse.statusCode == 401 ||
+          myChannelsResponse.statusCode == 401 ||
+          subscribedChannelsResponse.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
       } else {
-        throw Exception('Failed to load data'); // Send an alert instead
+        AlertService().showDatabaseErrorAlert(context);
       }
     } else {
       final subscribedChannelsResponse = await http.get(
@@ -113,8 +118,11 @@ class _ChannelsState extends State<Channels> {
               (subscribedChannel) =>
                   subscribedChannel.channelId == channel.channelId));
         });
+      } else if (allChannelsResponse.statusCode == 401 ||
+          subscribedChannelsResponse.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
       } else {
-        throw Exception('Failed to load data'); // Send an alert instead
+        AlertService().showDatabaseErrorAlert(context);
       }
     }
   }
@@ -159,6 +167,7 @@ class _ChannelsState extends State<Channels> {
 
   Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
     final url = Uri.parse('http://localhost:8082/unsubscribe');
+    late bool result = false;
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
@@ -173,19 +182,20 @@ class _ChannelsState extends State<Channels> {
       final response = await http.delete(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
-        return true;
-      } else {
-        return false;
+        result = true;
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
       }
     } catch (e) {
-      print('Error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
 
-    return false;
+    return result;
   }
 
   Future<bool> onChannelSubscribe(int userId, int channelId) async {
     final url = Uri.parse('http://localhost:8082/subscription');
+    late bool result = false;
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
@@ -200,15 +210,15 @@ class _ChannelsState extends State<Channels> {
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
-        return true;
-      } else {
-        return false;
+        result = true;
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
       }
     } catch (e) {
-      print('Error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
 
-    return false;
+    return result;
   }
 
   @override

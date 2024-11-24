@@ -5,6 +5,7 @@ import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -81,9 +82,7 @@ class _LoginState extends State<Login> {
         });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Error connecting to the server';
-      });
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 

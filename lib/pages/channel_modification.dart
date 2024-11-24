@@ -5,7 +5,7 @@ import 'package:study_vault/pojos/category.dart';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
-import 'package:study_vault/pages/login.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class ChannelModification extends StatefulWidget {
   final Channel channel;
@@ -27,8 +27,8 @@ class _ChannelModificationState extends State<ChannelModification> {
 
   Future<void> updateChannel() async {
     final url = Uri.parse(
-      'http://127.0.0.1:8080/channel/update/${widget.channel.channelId}');
-    
+        'http://127.0.0.1:8080/channel/update/${widget.channel.channelId}');
+
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
@@ -49,14 +49,14 @@ class _ChannelModificationState extends State<ChannelModification> {
           const SnackBar(content: Text('Channel updated successfully!')),
         );
       } else if (response.statusCode == 401) {
-        handleSessionExpiration(context);
+        AlertService().showSessionExpirationAlert(context);
       } else {
         setState(() {
           _errorMessage = 'Failed to update channel';
         });
       }
     } catch (e) {
-      print('Error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -78,14 +78,14 @@ class _ChannelModificationState extends State<ChannelModification> {
           const SnackBar(content: Text('Channel deleted successfully!')),
         );
       } else if (response.statusCode == 401) {
-        handleSessionExpiration(context);
+        AlertService().showSessionExpirationAlert(context);
       } else {
         setState(() {
           _errorMessage = 'Failed to delete channel';
         });
       }
     } catch (e) {
-      print('Error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -126,50 +126,32 @@ class _ChannelModificationState extends State<ChannelModification> {
       "Authorization": "Bearer $token",
     };
 
-    final response =
-        await http.get(Uri.parse('http://127.0.0.1:8080/categories/all'), headers: headers,);
+    try {
+      final response = await http.get(
+        Uri.parse('http://127.0.0.1:8080/categories/all'),
+        headers: headers,
+      );
 
-    if (response.statusCode == 200) {
-      List<dynamic> jsonCategories =
-          json.decode(utf8.decode(response.bodyBytes));
-      setState(() {
-        categories = jsonCategories
-            .map((category) => Category.fromJson(category))
-            .toList();
-        selectedCategory = categories.firstWhere(
-            (category) => category.name == widget.channel.categoryName);
-      });
-    } else if (response.statusCode == 401) {
-        handleSessionExpiration(context);
-    } else {
-      throw Exception('Failed to load categories');
-    }
-  }
-
-  void handleSessionExpiration(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.logoutUser();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: Text("Log In"),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
-            ),
-          ],
+      if (response.statusCode == 200) {
+        List<dynamic> jsonCategories =
+            json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          categories = jsonCategories
+              .map((category) => Category.fromJson(category))
+              .toList();
+          selectedCategory = categories.firstWhere(
+              (category) => category.name == widget.channel.categoryName);
+        });
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error al recuperar las categorías")),
         );
-      },
-    );
+      }
+    } catch (e) {
+      AlertService().showDatabaseErrorAlert(context);
+    }
   }
 
   @override
@@ -294,18 +276,22 @@ class _ChannelModificationState extends State<ChannelModification> {
                 ElevatedButton(
                   onPressed: () {
                     if (nameController.text.isNotEmpty &&
-                      selectedCategory != null &&
-                      descriptionController.text.isNotEmpty) {
-                        if (nameController.text == widget.channel.name &&
-                          descriptionController.text == widget.channel.description &&
-                          selectedCategory?.name == widget.channel.categoryName) {
-                            Navigator.pop(context, true);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('No changes detected, channel is already up to date.')),
-                            );
-                        } else {
-                          updateChannel();
-                        }
+                        selectedCategory != null &&
+                        descriptionController.text.isNotEmpty) {
+                      if (nameController.text == widget.channel.name &&
+                          descriptionController.text ==
+                              widget.channel.description &&
+                          selectedCategory?.name ==
+                              widget.channel.categoryName) {
+                        Navigator.pop(context, true);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'No changes detected, channel is already up to date.')),
+                        );
+                      } else {
+                        updateChannel();
+                      }
                     } else {
                       setState(() {
                         _errorMessage = 'Please fill all fields';

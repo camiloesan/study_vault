@@ -4,9 +4,11 @@ import 'package:study_vault/pages/post_content.dart';
 import 'package:study_vault/pages/post_creation.dart';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class ChannelContent extends StatefulWidget {
-  const ChannelContent({super.key, required this.channel, required this.isChannelCreator});
+  const ChannelContent(
+      {super.key, required this.channel, required this.isChannelCreator});
 
   final Channel channel;
   final bool isChannelCreator;
@@ -34,7 +36,7 @@ class _ChannelContentState extends State<ChannelContent> {
         channelPosts = response.posts;
       });
     } catch (e) {
-      print('Caught error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
 
     await channel.shutdown();

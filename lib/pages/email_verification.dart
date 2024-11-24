@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/sign_up.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:study_vault/utils/alert_service.dart';
 
 class EmailVerification extends StatefulWidget {
   const EmailVerification({super.key});
@@ -30,6 +31,7 @@ class _EmailVerificationState extends State<EmailVerification> {
       List<dynamic> emails = jsonDecode(response.body);
       return emails.cast<String>();
     } else {
+      AlertService().showDatabaseErrorAlert(context);
       throw Exception('Error al obtener los correos');
     }
   }
@@ -48,7 +50,7 @@ class _EmailVerificationState extends State<EmailVerification> {
         );
       }
     } catch (error) {
-      print('Error fetching emails: $error');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 

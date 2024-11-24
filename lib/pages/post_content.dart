@@ -12,7 +12,7 @@ import 'package:study_vault/pages/profile.dart';
 import 'package:study_vault/pojos/comment.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/user_provider.dart';
-import 'package:study_vault/pages/login.dart';
+import 'package:study_vault/utils/alert_service.dart';
 import 'package:http/http.dart' as http;
 
 class PostContent extends StatefulWidget {
@@ -54,7 +54,7 @@ class _PostContentState extends State<PostContent> {
         filename = response.filename;
       });
     } catch (e) {
-      print('Caught error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
 
     await channel.shutdown();
@@ -101,9 +101,9 @@ class _PostContentState extends State<PostContent> {
         userNames[comment.userId] = name;
       }
     } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
+      AlertService().showSessionExpirationAlert(context);
     } else {
-      throw Exception('Error al obtener los correos');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -125,9 +125,9 @@ class _PostContentState extends State<PostContent> {
         _channelName = channelNameJson;
       });
     } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
+      AlertService().showSessionExpirationAlert(context);
     } else {
-      throw Exception('Error al obtener nombre de canal');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -151,9 +151,9 @@ class _PostContentState extends State<PostContent> {
       await _setUserName(_creatorId);
       _postCreatorName = _UserName;
     } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
+      AlertService().showSessionExpirationAlert(context);
     } else {
-      throw Exception('Error al obtener nombre de canal');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -175,9 +175,9 @@ class _PostContentState extends State<PostContent> {
       });
       _UserName = '$_name $_last_name';
     } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
+      AlertService().showSessionExpirationAlert(context);
     } else {
-      throw Exception('Error al obtener nombre de usuario');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -205,14 +205,9 @@ class _PostContentState extends State<PostContent> {
       _fetchComments();
       build(context);
     } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
+      AlertService().showSessionExpirationAlert(context);
     } else {
-      final errorResponse = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                "Error: ${errorResponse['message'] ?? 'Error al comentar'}")),
-      );
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -251,6 +246,11 @@ class _PostContentState extends State<PostContent> {
       final responseStream = stub.downloadFile(FileDownloadRequest()
         ..channelId = widget.post.channelId
         ..fileId = widget.post.fileId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                "Descargando archivo... (esto puede tomar varios segundos)")),
+      );
 
       final filePath = '$_folderPath/$filename';
       final file = File(filePath);
@@ -271,40 +271,11 @@ class _PostContentState extends State<PostContent> {
         SnackBar(content: Text("Archivo descargado en $filePath")),
       );
     } catch (e) {
-      print('Error al descargar el archivo: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error al descargar el archivo")),
-      );
+      AlertService().showDatabaseErrorAlert(context);
     } finally {
       await channel.shutdown();
       _folderPath = null;
     }
-  }
-
-  void handleSessionExpiration(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.logoutUser();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: Text("Log In"),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override

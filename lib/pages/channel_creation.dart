@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:study_vault/pojos/category.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
-import 'package:study_vault/pages/login.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class ChannelCreation extends StatefulWidget {
   const ChannelCreation({super.key});
@@ -29,23 +29,29 @@ class _ChannelCreationState extends State<ChannelCreation> {
       "Authorization": "Bearer $token",
     };
 
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8080/categories/all'),
-      headers: headers,
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('http://127.0.0.1:8080/categories/all'),
+        headers: headers,
+      );
 
-    if (response.statusCode == 200) {
-      List<dynamic> jsonCategories =
-          json.decode(utf8.decode(response.bodyBytes));
-      setState(() {
-        categories = jsonCategories
-            .map((category) => Category.fromJson(category))
-            .toList();
-      });
-    } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
-    } else {
-      throw Exception('Failed to load categories');
+      if (response.statusCode == 200) {
+        List<dynamic> jsonCategories =
+            json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          categories = jsonCategories
+              .map((category) => Category.fromJson(category))
+              .toList();
+        });
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error al recuperar las categorías")),
+        );
+      }
+    } catch (e) {
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -72,39 +78,15 @@ class _ChannelCreationState extends State<ChannelCreation> {
           const SnackBar(content: Text('Channel created successfully!')),
         );
       } else if (response.statusCode == 401) {
-        handleSessionExpiration(context);
+        AlertService().showSessionExpirationAlert(context);
       } else {
-        throw Exception('Failed to create channel');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error al crear canal")),
+        );
       }
     } catch (e) {
-      print('Error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
-  }
-
-  void handleSessionExpiration(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.logoutUser();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: Text("Log In"),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override

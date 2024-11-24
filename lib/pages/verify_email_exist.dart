@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:study_vault/utils/alert_service.dart';
 import 'package:study_vault/pages/update_password.dart';
 
 class VerifyEmailExist extends StatefulWidget {
@@ -33,12 +33,7 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
     if (response.statusCode == 200) {
       _showVerificationCodeDialog();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text("Error: ${'Error al enviar correo'}" +
-                response.statusCode.toString() +
-                _emailController.text)),
-      );
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -82,12 +77,7 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
             builder: (context) => UpdatePassword(email: _emailController.text)),
       );
     } else {
-      final errorResponse = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                "Error: ${errorResponse['message'] ?? 'Error al enviar correo'}")),
-      );
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -100,6 +90,7 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
       List<dynamic> emails = jsonDecode(response.body);
       return emails.cast<String>();
     } else {
+      AlertService().showDatabaseErrorAlert(context);
       throw Exception('Error al obtener los correos');
     }
   }
@@ -113,7 +104,7 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
         _showEmailExistsAlert();
       }
     } catch (error) {
-      print('Error fetching emails: $error');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 

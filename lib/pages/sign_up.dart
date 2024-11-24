@@ -4,6 +4,7 @@ import 'package:study_vault/pages/landing_launch.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class SignUp extends StatefulWidget {
   final String email;
@@ -43,12 +44,7 @@ class _SignUpState extends State<SignUp> {
         MaterialPageRoute(builder: (context) => const LandingLaunch()),
       );
     } else {
-      final errorResponse = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                "Error: ${errorResponse['message'] ?? 'Error al registrarse'}")),
-      );
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 

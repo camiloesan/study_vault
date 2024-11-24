@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:study_vault/pojos/comment.dart';
 import 'package:study_vault/utils/user_provider.dart';
-import 'package:study_vault/pages/login.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class CommentModification extends StatefulWidget {
   final Comment comment;
@@ -44,14 +44,14 @@ class _CommentModificationState extends State<CommentModification> {
           const SnackBar(content: Text('Comment updated successfully!')),
         );
       } else if (response.statusCode == 401) {
-        handleSessionExpiration(context);
+        AlertService().showSessionExpirationAlert(context);
       } else {
         setState(() {
           _errorMessage = 'Failed to update comment';
         });
       }
     } catch (e) {
-      print('Error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -73,14 +73,14 @@ class _CommentModificationState extends State<CommentModification> {
           const SnackBar(content: Text('Comment deleted successfully!')),
         );
       } else if (response.statusCode == 401) {
-        handleSessionExpiration(context);
+        AlertService().showSessionExpirationAlert(context);
       } else {
         setState(() {
           _errorMessage = 'Failed to delete comment';
         });
       }
     } catch (e) {
-      print('Error: $e');
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -113,32 +113,6 @@ class _CommentModificationState extends State<CommentModification> {
     if (confirm == true) {
       await deleteComment();
     }
-  }
-
-  void handleSessionExpiration(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.logoutUser();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: Text("Log In"),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override

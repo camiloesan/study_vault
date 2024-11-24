@@ -7,6 +7,7 @@ import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/profile.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_vault/utils/alert_service.dart';
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({super.key});
@@ -35,29 +36,33 @@ class _ChangePasswordState extends State<ChangePassword> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final String? userEmail = userProvider.email;
 
-    final response = await http.put(
-      Uri.parse('http://127.0.0.1:8083/password/update'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'email': userEmail,
-        'password': _hashPassword(_passwordController.text)
-      }),
-    );
+    try {
+      final response = await http.put(
+        Uri.parse('http://127.0.0.1:8083/password/update'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'email': userEmail,
+          'password': _hashPassword(_passwordController.text)
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password updated")),
-      );
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Profile()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text("Error al actualizarse, intenta con otra contraseña")),
-      );
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Password updated")),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Profile()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text("Error al actualizarse, intenta con otra contraseña")),
+        );
+      }
+    } catch (e) {
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 

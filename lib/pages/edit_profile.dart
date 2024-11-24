@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/profile.dart';
-import 'package:study_vault/pages/login.dart';
+import 'package:study_vault/utils/alert_service.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -56,14 +56,9 @@ class _EditProfileState extends State<EditProfile> {
       final int? userId = userProvider.userId;
       _setUserName(userId);
     } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
+      AlertService().showSessionExpirationAlert(context);
     } else {
-      final errorResponse = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                "Error: ${errorResponse['message'] ?? 'Error al actualizarse'}")),
-      );
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -89,36 +84,10 @@ class _EditProfileState extends State<EditProfile> {
         MaterialPageRoute(builder: (context) => const Profile()),
       );
     } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
+      AlertService().showSessionExpirationAlert(context);
     } else {
-      throw Exception('Error al obtener nombre de usuario');
+      AlertService().showDatabaseErrorAlert(context);
     }
-  }
-
-  void handleSessionExpiration(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.logoutUser();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: Text("Log In"),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override

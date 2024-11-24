@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:grpc/grpc.dart';
 import 'package:study_vault/pojos/channel.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
+import 'package:study_vault/utils/alert_service.dart';
 
 class PostCreation extends StatefulWidget {
   const PostCreation({super.key, required this.channel});
@@ -227,6 +228,8 @@ class _PostCreationState extends State<PostCreation> {
 
       if (response.success) {
         isSuccess = true;
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
       }
     } finally {
       await channel.shutdown();

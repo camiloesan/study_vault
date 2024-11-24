@@ -6,7 +6,7 @@ import 'package:study_vault/pages/Change_password.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/edit_profile.dart';
 import 'package:study_vault/pages/landing_launch.dart';
-import 'package:study_vault/pages/login.dart';
+import 'package:study_vault/utils/alert_service.dart';
 import 'package:study_vault/utils/constants.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:http/http.dart' as http;
@@ -57,14 +57,9 @@ class _ProfileState extends State<Profile> {
         MaterialPageRoute(builder: (context) => const LandingLaunch()),
       );
     } else if (response.statusCode == 401) {
-      handleSessionExpiration(context);
+      AlertService().showSessionExpirationAlert(context);
     } else {
-      final errorResponse = json.decode(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                "Error: ${errorResponse['message'] ?? 'Error al registrarse'}")),
-      );
+      AlertService().showDatabaseErrorAlert(context);
     }
   }
 
@@ -104,32 +99,6 @@ class _ProfileState extends State<Profile> {
     _userType = userProvider.userTypeId;
     _isStudent = _userType == Constants.studentType;
     _userEmail = userProvider.email;
-  }
-
-  void handleSessionExpiration(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.logoutUser();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Session Expired"),
-          content: Text("Your session has expired. Please log in again."),
-          actions: [
-            TextButton(
-              child: Text("Log In"),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
