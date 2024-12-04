@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:grpc/grpc.dart';
 import 'package:study_vault/pages/post_content.dart';
 import 'package:study_vault/pages/post_creation.dart';
 import 'package:study_vault/models/channel.dart';
+import 'package:study_vault/services/channels_services.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
-import 'package:study_vault/utils/alert_service.dart';
 
 class ChannelContent extends StatefulWidget {
   const ChannelContent(
@@ -20,32 +19,27 @@ class ChannelContent extends StatefulWidget {
 class _ChannelContentState extends State<ChannelContent> {
   late List<PostsResponse_PostInfo> channelPosts = [];
 
-  Future<void> fetchGrpcData() async {
-    final channel = ClientChannel(
-      'localhost',
-      port: 8081,
-      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-    );
-    final stub = PostsServiceClient(channel);
-
+  void updatePosts() async {
     try {
-      final response = await stub.getPostsByChannelId(
-          ChannelRequest()..channelId = widget.channel.channelId);
+      var response =
+          await ChannelsServices.fetchChannelPosts(widget.channel.channelId);
 
       setState(() {
-        channelPosts = response.posts;
+        channelPosts = response;
       });
-    } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+    } catch (err) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cannot retrieve posts, try again later')),
+        );
+      }
     }
-
-    await channel.shutdown();
   }
 
   @override
   void initState() {
     super.initState();
-    fetchGrpcData();
+    updatePosts();
   }
 
   void createNewPost() async {
@@ -54,7 +48,16 @@ class _ChannelContentState extends State<ChannelContent> {
         builder: (context) {
           return PostCreation(channel: widget.channel);
         });
-    await fetchGrpcData();
+
+    try {
+      updatePosts();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cannot retrieve posts, try again later')),
+        );
+      }
+    }
   }
 
   @override
