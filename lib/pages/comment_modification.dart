@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:study_vault/pojos/comment.dart';
+import 'package:study_vault/dtos/comment.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:study_vault/utils/alert_service.dart';
 

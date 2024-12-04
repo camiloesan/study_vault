@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:grpc/grpc.dart';
-import 'package:study_vault/pojos/channel.dart';
+import 'package:study_vault/dtos/channel.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/alert_service.dart';
 

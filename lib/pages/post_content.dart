@@ -9,7 +9,7 @@ import 'package:study_vault/pages/channels.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:study_vault/pages/comment_modification.dart';
 import 'package:study_vault/pages/profile.dart';
-import 'package:study_vault/pojos/comment.dart';
+import 'package:study_vault/dtos/comment.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:study_vault/utils/alert_service.dart';

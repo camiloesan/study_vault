@@ -5,7 +5,7 @@ import 'package:study_vault/pages/channel_creation.dart';
 import 'package:study_vault/pages/channel_modification.dart';
 import 'package:study_vault/pages/profile.dart';
 import 'dart:convert';
-import 'package:study_vault/pojos/channel.dart';
+import 'package:study_vault/dtos/channel.dart';
 import 'package:study_vault/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
