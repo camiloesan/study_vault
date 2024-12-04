@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:grpc/grpc.dart';
 import 'package:study_vault/dtos/channel.dart';
-import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
-import 'package:study_vault/utils/alert_service.dart';
+import 'package:study_vault/services/posts_services.dart';
 
 class PostCreation extends StatefulWidget {
   const PostCreation({super.key, required this.channel});
@@ -26,6 +23,8 @@ class _PostCreationState extends State<PostCreation> {
   String? _titleErrorText;
   String? _descriptionErrorText;
   String? _fileErrorText;
+
+  final PostsServices postsServices = PostsServices();
 
   @override
   Widget build(BuildContext context) {
@@ -109,14 +108,14 @@ class _PostCreationState extends State<PostCreation> {
                       bool isValid = areFieldsValid();
                       if (!isValid) return;
 
-                      var result = uploadPost(
+                      bool uploadResult = await postsServices.uploadPost(
                           filePath: selectedFilePath,
                           channelId: widget.channel.channelId,
                           title: _titleController.text,
                           description: _descriptionController.text,
                           filename: selectedFileName);
 
-                      if (await result) {
+                      if (uploadResult) {
                         if (context.mounted) {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -184,58 +183,6 @@ class _PostCreationState extends State<PostCreation> {
     }
 
     return result;
-  }
-
-  Future<bool> uploadPost({
-    required String filePath,
-    required int channelId,
-    required String title,
-    required String description,
-    required String filename,
-    int chunkSize = 64 * 1024,
-  }) async {
-    bool isSuccess = false;
-
-    final channel = ClientChannel(
-      'localhost',
-      port: 8081,
-      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-    );
-
-    final stub = PostsServiceClient(channel);
-    final file = File(filePath);
-
-    try {
-      final fileStream = StreamController<FileChunk>();
-      final inputStream = file.openRead();
-
-      inputStream.listen(
-        (data) {
-          final chunk = FileChunk(
-            content: data,
-            filename: filename,
-            channelId: channelId,
-            title: title,
-            description: description,
-          );
-          fileStream.add(chunk);
-        },
-        onDone: () => fileStream.close(),
-        onError: (error) => fileStream.addError(error),
-      );
-
-      final response = await stub.uploadPost(fileStream.stream);
-
-      if (response.success) {
-        isSuccess = true;
-      } else {
-        AlertService().showDatabaseErrorAlert(context);
-      }
-    } finally {
-      await channel.shutdown();
-    }
-
-    return isSuccess;
   }
 
   Future<void> pickFile() async {
