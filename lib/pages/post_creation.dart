@@ -24,8 +24,6 @@ class _PostCreationState extends State<PostCreation> {
   String? _descriptionErrorText;
   String? _fileErrorText;
 
-  final PostsServices postsServices = PostsServices();
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -108,12 +106,23 @@ class _PostCreationState extends State<PostCreation> {
                       bool isValid = areFieldsValid();
                       if (!isValid) return;
 
-                      bool uploadResult = await postsServices.uploadPost(
-                          filePath: selectedFilePath,
-                          channelId: widget.channel.channelId,
-                          title: _titleController.text,
-                          description: _descriptionController.text,
-                          filename: selectedFileName);
+                      bool uploadResult = false;
+                      try {
+                        uploadResult = await PostsServices.uploadPost(
+                            filePath: selectedFilePath,
+                            channelId: widget.channel.channelId,
+                            title: _titleController.text,
+                            description: _descriptionController.text,
+                            filename: selectedFileName);
+                      } catch (err) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Cannot create post right now, try again later')),
+                          );
+                        }
+                      }
 
                       if (uploadResult) {
                         if (context.mounted) {

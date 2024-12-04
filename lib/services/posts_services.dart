@@ -5,7 +5,7 @@ import 'package:grpc/grpc.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 
 class PostsServices {
-  Future<bool> uploadPost({
+  static Future<bool> uploadPost({
     required String filePath,
     required int channelId,
     required String title,
