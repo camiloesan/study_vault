@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:study_vault/dtos/channel.dart';
+import 'package:study_vault/models/channel.dart';
 import 'package:study_vault/services/posts_services.dart';
 
 class PostCreation extends StatefulWidget {
