@@ -6,6 +6,7 @@ import 'package:study_vault/pages/channel_modification.dart';
 import 'package:study_vault/pages/profile.dart';
 import 'dart:convert';
 import 'package:study_vault/models/channel.dart';
+import 'package:study_vault/services/channels_services.dart';
 import 'package:study_vault/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
@@ -23,7 +24,7 @@ class _ChannelsState extends State<Channels> {
   late List<Channel> subscribedChannels = [];
   late List<Channel> allChannels = [];
 
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
   int? userId;
   int? userType;
   String? token;
@@ -46,83 +47,111 @@ class _ChannelsState extends State<Channels> {
     bool isProfessor = userType == Constants.professorType;
 
     if (isProfessor) {
-      final myChannelsResponse = await http.get(
-        Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'),
-        headers: headers,
-      );
-      final subscribedChannelsResponse = await http.get(
-        Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'),
-        headers: headers,
-      );
-      final allChannelsResponse = await http.get(
-        Uri.parse('http://127.0.0.1:8080/channels/all'),
-        headers: headers,
-      );
+      try {
+        http.Response myChannelsResponse =
+            await ChannelsServices.getChannelsByOwnerId(headers, userId!);
+        http.Response subscribedChannelsResponse =
+            await ChannelsServices.getSubscribedChannelsByUserId(
+                headers, userId);
+        http.Response allChannelsResponse =
+            await ChannelsServices.getAllChannels(headers, userId);
 
-      if (allChannelsResponse.statusCode == 200 &&
-          myChannelsResponse.statusCode == 200 &&
-          subscribedChannelsResponse.statusCode == 200) {
-        List<dynamic> jsonMyChannels =
-            json.decode(utf8.decode(myChannelsResponse.bodyBytes));
-        List<dynamic> jsonSubscribedChannels =
-            json.decode(utf8.decode(subscribedChannelsResponse.bodyBytes));
-        List<dynamic> jsonAllChannels =
-            json.decode(utf8.decode(allChannelsResponse.bodyBytes));
+        if (allChannelsResponse.statusCode == 200 &&
+            myChannelsResponse.statusCode == 200 &&
+            subscribedChannelsResponse.statusCode == 200) {
+          List<dynamic> jsonMyChannels =
+              json.decode(utf8.decode(myChannelsResponse.bodyBytes));
+          List<dynamic> jsonSubscribedChannels =
+              json.decode(utf8.decode(subscribedChannelsResponse.bodyBytes));
+          List<dynamic> jsonAllChannels =
+              json.decode(utf8.decode(allChannelsResponse.bodyBytes));
 
-        setState(() {
-          myChannels = jsonMyChannels
-              .map((channel) => Channel.fromJson(channel))
-              .toList();
-          subscribedChannels = jsonSubscribedChannels
-              .map((channel) => Channel.fromJson(channel))
-              .toList();
-          allChannels = jsonAllChannels
-              .map((channel) => Channel.fromJson(channel))
-              .toList();
-          allChannels.removeWhere((channel) => subscribedChannels.any(
-              (subscribedChannel) =>
-                  subscribedChannel.channelId == channel.channelId));
-        });
-      } else if (allChannelsResponse.statusCode == 401 ||
-          myChannelsResponse.statusCode == 401 ||
-          subscribedChannelsResponse.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
-      } else {
-        AlertService().showDatabaseErrorAlert(context);
+          setState(() {
+            myChannels = jsonMyChannels
+                .map((channel) => Channel.fromJson(channel))
+                .toList();
+            subscribedChannels = jsonSubscribedChannels
+                .map((channel) => Channel.fromJson(channel))
+                .toList();
+            allChannels = jsonAllChannels
+                .map((channel) => Channel.fromJson(channel))
+                .toList();
+            allChannels.removeWhere((channel) => subscribedChannels.any(
+                (subscribedChannel) =>
+                    subscribedChannel.channelId == channel.channelId));
+          });
+        } else if (allChannelsResponse.statusCode == 401 ||
+            myChannelsResponse.statusCode == 401 ||
+            subscribedChannelsResponse.statusCode == 401) {
+          if (mounted) {
+            AlertService().showSessionExpirationAlert(context);
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      'Cannot retrieve channels right now, try again later')),
+            );
+          }
+        }
+      } catch (err) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Cannot retrieve channels right now, try again later')),
+          );
+        }
       }
     } else {
-      final subscribedChannelsResponse = await http.get(
-        Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'),
-        headers: headers,
-      );
-      final allChannelsResponse = await http.get(
-        Uri.parse('http://127.0.0.1:8080/channels/all'),
-        headers: headers,
-      );
+      try {
+        final subscribedChannelsResponse =
+            await ChannelsServices.getSubscribedChannelsByUserId(
+                headers, userId!);
+        final allChannelsResponse =
+            await ChannelsServices.getAllChannels(headers, userId);
 
-      if (allChannelsResponse.statusCode == 200 &&
-          subscribedChannelsResponse.statusCode == 200) {
-        List<dynamic> jsonSubscribedChannels =
-            json.decode(utf8.decode(subscribedChannelsResponse.bodyBytes));
-        List<dynamic> jsonAllChannels =
-            json.decode(utf8.decode(allChannelsResponse.bodyBytes));
+        if (allChannelsResponse.statusCode == 200 &&
+            subscribedChannelsResponse.statusCode == 200) {
+          List<dynamic> jsonSubscribedChannels =
+              json.decode(utf8.decode(subscribedChannelsResponse.bodyBytes));
+          List<dynamic> jsonAllChannels =
+              json.decode(utf8.decode(allChannelsResponse.bodyBytes));
 
-        setState(() {
-          subscribedChannels = jsonSubscribedChannels
-              .map((channel) => Channel.fromJson(channel))
-              .toList();
-          allChannels = jsonAllChannels
-              .map((channel) => Channel.fromJson(channel))
-              .toList();
-          allChannels.removeWhere((channel) => subscribedChannels.any(
-              (subscribedChannel) =>
-                  subscribedChannel.channelId == channel.channelId));
-        });
-      } else if (allChannelsResponse.statusCode == 401 ||
-          subscribedChannelsResponse.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
-      } else {
-        AlertService().showDatabaseErrorAlert(context);
+          setState(() {
+            subscribedChannels = jsonSubscribedChannels
+                .map((channel) => Channel.fromJson(channel))
+                .toList();
+            allChannels = jsonAllChannels
+                .map((channel) => Channel.fromJson(channel))
+                .toList();
+            allChannels.removeWhere((channel) => subscribedChannels.any(
+                (subscribedChannel) =>
+                    subscribedChannel.channelId == channel.channelId));
+          });
+        } else if (allChannelsResponse.statusCode == 401 ||
+            subscribedChannelsResponse.statusCode == 401) {
+          if (mounted) {
+            AlertService().showSessionExpirationAlert(context);
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      'Cannot retrieve channels right now, try again later')),
+            );
+          }
+        }
+      } catch (err) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Cannot retrieve channels right now, try again later')),
+          );
+        }
       }
     }
   }
