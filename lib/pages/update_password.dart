@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/login.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:study_vault/utils/alert_service.dart';
+import 'package:study_vault/services/users_services.dart';
 
 class UpdatePassword extends StatefulWidget {
   final String email;
@@ -22,24 +22,28 @@ class _UpdatePasswordState extends State<UpdatePassword> {
       TextEditingController();
 
   void _updaterPassword() async {
-    final response = await http.put(
-      Uri.parse('http://127.0.0.1:8083/password/update'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'email': widget.email,
-        'password': _hashPassword(_passwordController.text)
-      }),
-    );
+    final String email = widget.email;
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password updated")),
-      );
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Login()),
-      );
-    } else {
+    final headers = {'Content-Type': 'application/json'};
+    final body = {
+      'email': email,
+      'password': _hashPassword(_passwordController.text),
+    };
+
+    try {
+      final response = await UsersServices.updatePassword(headers, body);
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Password updated")),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Login()),
+        );
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
