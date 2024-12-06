@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:study_vault/models/category.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:study_vault/utils/alert_service.dart';
+import 'package:study_vault/services/channels_services.dart';
+
 
 class ChannelCreation extends StatefulWidget {
   const ChannelCreation({super.key});
@@ -30,10 +31,7 @@ class _ChannelCreationState extends State<ChannelCreation> {
     };
 
     try {
-      final response = await http.get(
-        Uri.parse('http://127.0.0.1:8080/categories/all'),
-        headers: headers,
-      );
+      final response = await ChannelsServices.fetchCategories(headers);
 
       if (response.statusCode == 200) {
         List<dynamic> jsonCategories =
@@ -47,7 +45,7 @@ class _ChannelCreationState extends State<ChannelCreation> {
         AlertService().showSessionExpirationAlert(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error al recuperar las categorías")),
+          const SnackBar(content: Text("Error to fetch categories")),
         );
       }
     } catch (e) {
@@ -56,21 +54,20 @@ class _ChannelCreationState extends State<ChannelCreation> {
   }
 
   Future<void> createChannel() async {
-    final url = Uri.parse('http://127.0.0.1:8080/channel/create');
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
 
-    final body = jsonEncode({
+    final body = {
       'name': channelName,
       'description': channelDescription,
       'category_id': selectedCategory?.categoryId,
       'creator_id': userId
-    });
+    };
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await ChannelsServices.createChannel(headers, body);
 
       if (response.statusCode == 200) {
         Navigator.pop(context, true);
@@ -81,7 +78,7 @@ class _ChannelCreationState extends State<ChannelCreation> {
         AlertService().showSessionExpirationAlert(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error al crear canal")),
+          const SnackBar(content: Text("Error to create channel")),
         );
       }
     } catch (e) {

@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:study_vault/models/category.dart';
 import 'package:study_vault/models/channel.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:study_vault/utils/alert_service.dart';
+import 'package:study_vault/services/channels_services.dart';
 
 class ChannelModification extends StatefulWidget {
   final Channel channel;
@@ -26,22 +26,23 @@ class _ChannelModificationState extends State<ChannelModification> {
   String? token;
 
   Future<void> updateChannel() async {
-    final url = Uri.parse(
-        'http://127.0.0.1:8080/channel/update/${widget.channel.channelId}');
-
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
 
-    final body = jsonEncode({
+    final body = {
       'name': nameController.text,
       'description': descriptionController.text,
       'category_id': selectedCategory?.categoryId,
-    });
+    };
 
     try {
-      final response = await http.put(url, headers: headers, body: body);
+      final response = await ChannelsServices.updateChannel(
+        headers,
+        body,
+        widget.channel.channelId,
+      );
 
       if (response.statusCode == 200) {
         Navigator.pop(context, true);
@@ -61,16 +62,16 @@ class _ChannelModificationState extends State<ChannelModification> {
   }
 
   Future<void> deleteChannel() async {
-    final url = Uri.parse(
-        'http://127.0.0.1:8080/channel/delete/${widget.channel.channelId}');
-
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
 
     try {
-      final response = await http.delete(url, headers: headers);
+      final response = await ChannelsServices.deleteChannel(
+        headers,
+        widget.channel.channelId,
+      );
 
       if (response.statusCode == 200) {
         Navigator.pop(context, true);
@@ -127,10 +128,7 @@ class _ChannelModificationState extends State<ChannelModification> {
     };
 
     try {
-      final response = await http.get(
-        Uri.parse('http://127.0.0.1:8080/categories/all'),
-        headers: headers,
-      );
+      final response = await ChannelsServices.fetchCategories(headers);
 
       if (response.statusCode == 200) {
         List<dynamic> jsonCategories =
@@ -146,7 +144,7 @@ class _ChannelModificationState extends State<ChannelModification> {
         AlertService().showSessionExpirationAlert(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error al recuperar las categorías")),
+          const SnackBar(content: Text("Error to fetch categories")),
         );
       }
     } catch (e) {

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:grpc/grpc.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
@@ -67,5 +68,61 @@ class ChannelsServices {
     }
 
     return allChannels;
+  }
+
+  static Future<http.Response> createChannel(Map<String, String> headers, Map<String, dynamic> body) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse('http://127.0.0.1:8080/channel/create'),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+    } catch (err) {
+      throw Error();
+    }
+    return response;
+  }
+
+  static Future<http.Response> fetchCategories(Map<String, String> headers) async {
+    http.Response response;
+    try {
+      response = await http.get(
+        Uri.parse('http://127.0.0.1:8080/categories/all'),
+        headers: headers,
+      );
+    } catch (err) {
+      throw Error();
+    }
+    return response;
+  }
+
+  static Future<http.Response> updateChannel(
+      Map<String, String> headers, Map<String, dynamic> body, int channelId) async {
+    http.Response response;
+    try {
+      response = await http.put(
+        Uri.parse('http://127.0.0.1:8080/channel/update/$channelId'),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+    } catch (err) {
+      throw Error();
+    }
+    return response;
+  }
+
+  static Future<http.Response> deleteChannel(
+      Map<String, String> headers, int channelId) async {
+    http.Response response;
+    try {
+      response = await http.delete(
+        Uri.parse('http://127.0.0.1:8080/channel/delete/$channelId'),
+        headers: headers,
+      );
+    } catch (err) {
+      throw Error();
+    }
+    return response;
   }
 }
