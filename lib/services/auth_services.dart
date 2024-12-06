@@ -1,0 +1,23 @@
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+class AuthService {
+  static Future<http.Response> login(
+      String email, String hashedPassword) async {
+    final url = Uri.parse('http://127.0.0.1:8085/login');
+    final headers = {"Content-Type": "application/json"};
+    final body = jsonEncode({
+      'email': email,
+      'password': hashedPassword,
+    });
+
+    http.Response response;
+    try {
+      response = await http.post(url, headers: headers, body: body);
+    } catch (e) {
+      throw Error();
+    }
+
+    return response;
+  }
+}

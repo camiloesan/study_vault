@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/utils/user_provider.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:study_vault/utils/alert_service.dart';
+import 'package:study_vault/services/auth_services.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -25,27 +25,11 @@ class _LoginState extends State<Login> {
     return digest.toString();
   }
 
-  Future<void> _login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _errorMessage = 'Please fill in all fields';
-      });
-      return;
-    }
-
+  Future<void> _login(String email, String password) async {
     final hashedPassword = hashPassword(password);
-    final url = Uri.parse('http://127.0.0.1:8085/login');
-    final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({
-      'email': email,
-      'password': hashedPassword,
-    });
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await AuthService.login(email, hashedPassword);
 
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
@@ -139,7 +123,18 @@ class _LoginState extends State<Login> {
               const SizedBox(height: 40),
               Center(
                 child: ElevatedButton(
-                  onPressed: _login,
+                  onPressed: () {
+                    final email = _emailController.text;
+                    final password = _passwordController.text;
+
+                    if (email.isEmpty || password.isEmpty) {
+                      setState(() {
+                        _errorMessage = 'Please fill in all fields';
+                      });
+                    } else {
+                      _login(email, password);
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 50,
