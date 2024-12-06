@@ -20,4 +20,34 @@ class AuthService {
 
     return response;
   }
+
+  static Future<http.Response> sendVerificationCode(
+      Map<String, String> headers, String email) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse('http://127.0.0.1:8085/user/verification/request'),
+        headers: headers,
+        body: '"$email"',
+      );
+    } catch (e) {
+      throw Error();
+    }
+    return response;
+  }
+
+  static Future<http.Response> verifyCode(
+      Map<String, String> headers, Map<String, dynamic> body) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse('http://127.0.0.1:8085/user/verify'),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+    } catch (e) {
+      throw Error();
+    }
+    return response;
+  }
 }

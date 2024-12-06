@@ -73,4 +73,16 @@ class UsersServices {
     }
     return response;
   }
+
+  static Future<http.Response> fetchEmails() async {
+    http.Response response;
+    try {
+      response = await http.get(
+        Uri.parse('http://127.0.0.1:8083/user/email/all'),
+      );
+    } catch (e) {
+      throw Error();
+    }
+    return response;
+  }
 }

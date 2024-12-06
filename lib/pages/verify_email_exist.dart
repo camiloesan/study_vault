@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:http/http.dart' as http;
+import 'package:study_vault/services/auth_services.dart';
+import 'package:study_vault/services/users_services.dart';
 import 'dart:convert';
 import 'package:study_vault/utils/alert_service.dart';
 import 'package:study_vault/pages/update_password.dart';
@@ -25,14 +26,18 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
   }
 
   void _sendCodeToEmail() async {
-    final response = await http.post(
-        Uri.parse('http://127.0.0.1:8085/user/verification/request'),
-        headers: {'Content-Type': 'application/json'},
-        body: '"${_emailController.text}"');
+    final headers = {'Content-Type': 'application/json'};
+    final email = _emailController.text;
 
-    if (response.statusCode == 200) {
-      _showVerificationCodeDialog();
-    } else {
+    try {
+      final response = await AuthService.sendVerificationCode(headers, email);
+
+      if (response.statusCode == 200) {
+        _showVerificationCodeDialog();
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
@@ -64,32 +69,38 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
   }
 
   void _sendVerifyCode(String code) async {
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8085/user/verify'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'email': _emailController.text, 'code': code}),
-    );
+    final headers = {'Content-Type': 'application/json'};
+    final body = {'email': _emailController.text, 'code': code};
 
-    if (response.statusCode == 200) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => UpdatePassword(email: _emailController.text)),
-      );
-    } else {
+    try {
+      final response = await AuthService.verifyCode(headers, body);
+
+      if (response.statusCode == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => UpdatePassword(email: _emailController.text),
+          ),
+        );
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
 
   Future<List<String>> _fetchEmails() async {
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8083/user/email/all'),
-    );
-
-    if (response.statusCode == 200) {
-      List<dynamic> emails = jsonDecode(response.body);
-      return emails.cast<String>();
-    } else {
+    try {
+      final response = await UsersServices.fetchEmails();
+      if (response.statusCode == 200) {
+        List<dynamic> emails = jsonDecode(response.body);
+        return emails.cast<String>();
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+        throw Exception('Error al obtener los correos');
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
       throw Exception('Error al obtener los correos');
     }

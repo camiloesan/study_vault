@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/sign_up.dart';
-import 'package:http/http.dart' as http;
+import 'package:study_vault/services/users_services.dart';
 import 'dart:convert';
 import 'package:study_vault/utils/alert_service.dart';
 
@@ -23,14 +23,16 @@ class _EmailVerificationState extends State<EmailVerification> {
   }
 
   Future<List<String>> _fetchEmails() async {
-    final response = await http.get(
-      Uri.parse('http://127.0.0.1:8083/user/email/all'),
-    );
-
-    if (response.statusCode == 200) {
-      List<dynamic> emails = jsonDecode(response.body);
-      return emails.cast<String>();
-    } else {
+    try {
+      final response = await UsersServices.fetchEmails();
+      if (response.statusCode == 200) {
+        List<dynamic> emails = jsonDecode(response.body);
+        return emails.cast<String>();
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+        throw Exception('Error al obtener los correos');
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
       throw Exception('Error al obtener los correos');
     }
