@@ -1,12 +1,12 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/profile.dart';
 import 'package:study_vault/utils/alert_service.dart';
 import 'package:study_vault/utils/user_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:study_vault/services/users_services.dart';
+
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -35,57 +35,75 @@ class _EditProfileState extends State<EditProfile> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final int? userId = userProvider.userId;
 
-    final response = await http.put(
-      Uri.parse('http://127.0.0.1:8083/update/$userId'),
-      headers: {
-        'Content-Type': 'application/json',
-        "Authorization": "Bearer $token",
-      },
-      body: json.encode({
-        'id': userId,
-        'name': _nameController.text,
-        'last_name': _lastNameController.text
-      }),
-    );
+    if (userId == null) {
+      return;
+    }
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile updated")),
-      );
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final int? userId = userProvider.userId;
-      _setUserName(userId);
-    } else if (response.statusCode == 401) {
-      AlertService().showSessionExpirationAlert(context);
-    } else {
+    final headers = {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer $token",
+    };
+
+    final body = {
+      'id': userId,
+      'name': _nameController.text,
+      'last_name': _lastNameController.text,
+    };
+
+    try {
+      final response = await UsersServices.updateUser(headers, body, userId);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Profile updated")),
+        );
+        _setUserName(userId);
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
 
   Future<void> _setUserName(int? userId) async {
-    final response = await http
-        .get(Uri.parse('http://127.0.0.1:8083/user/name/$userId'), headers: {
+    if (userId == null) {
+      return;
+    }
+
+    final headers = {
       'Content-Type': 'application/json',
       "Authorization": "Bearer $token",
-    });
+    };
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      String _name = "";
-      String _last_name = "";
-      setState(() {
-        _name = jsonResponse['name'] as String;
-        _last_name = jsonResponse['last_name'] as String;
-      });
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.updateUserInfo(_name, _last_name);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Profile()),
-      );
-    } else if (response.statusCode == 401) {
-      AlertService().showSessionExpirationAlert(context);
-    } else {
+    try {
+      final response = await UsersServices.getUserName(headers, userId);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        String _name = jsonResponse['name'] as String;
+        String _last_name = jsonResponse['last_name'] as String;
+
+        setState(() {
+          _name = _name;
+          _last_name = _last_name;
+        });
+
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.updateUserInfo(_name, _last_name);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Profile()),
+        );
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }

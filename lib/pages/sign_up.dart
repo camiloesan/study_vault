@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/landing_launch.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:study_vault/utils/alert_service.dart';
+import 'package:study_vault/services/users_services.dart';
 
 class SignUp extends StatefulWidget {
   final String email;
@@ -24,26 +24,28 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _lastNameController = TextEditingController();
 
   void _registerUser() async {
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8083/register'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
+    final headers = {'Content-Type': 'application/json'};
+    final body = {
         'email': widget.email,
         'name': _nameController.text,
         'last_name': _lastNameController.text,
         'password': _hashPassword(_passwordController.text),
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Registro exitoso")),
-      );
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LandingLaunch()),
-      );
-    } else {
+    };
+    
+    try {
+      final response = await UsersServices.registerUser(headers, body);
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Registro exitoso")),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LandingLaunch()),
+        );
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }

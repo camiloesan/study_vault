@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/Change_password.dart';
@@ -9,7 +8,7 @@ import 'package:study_vault/pages/landing_launch.dart';
 import 'package:study_vault/utils/alert_service.dart';
 import 'package:study_vault/utils/constants.dart';
 import 'package:study_vault/utils/user_provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:study_vault/services/users_services.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -39,26 +38,33 @@ class _ProfileState extends State<Profile> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final int? userId = userProvider.userId;
 
-    final response =
-        await http.delete(Uri.parse('http://127.0.0.1:8083/delete/$userId'),
-            headers: {
-              'Content-Type': 'application/json',
-              "Authorization": "Bearer $token",
-            },
-            body: userId.toString());
+    if (userId == null) {
+      return;
+    }
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Account deleted")),
-      );
-      Provider.of<UserProvider>(context, listen: false).logoutUser();
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LandingLaunch()),
-      );
-    } else if (response.statusCode == 401) {
-      AlertService().showSessionExpirationAlert(context);
-    } else {
+    final headers = {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer $token",
+    };
+
+    try {
+      final response = await UsersServices.deleteUser(headers, userId);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Account deleted")),
+        );
+        userProvider.logoutUser();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LandingLaunch()),
+        );
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
