@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:study_vault/models/comment.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:study_vault/utils/alert_service.dart';
+import 'package:study_vault/services/comments_services.dart';
 
 class CommentModification extends StatefulWidget {
   final Comment comment;
@@ -23,20 +23,19 @@ class _CommentModificationState extends State<CommentModification> {
   String? token;
 
   Future<void> updateComment() async {
-    final url = Uri.parse(
-        'http://127.0.0.1:8084/comment/update/${widget.comment.commentId}');
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
-    final body = jsonEncode({
+
+    final body = {
       'comment_id': widget.comment.commentId,
       'comment': commentController.text,
-      'rating': _rating
-    });
+      'rating': _rating,
+    };
 
     try {
-      final response = await http.put(url, headers: headers, body: body);
+      final response = await CommentsServices.updateComment(headers, body, widget.comment.commentId);
 
       if (response.statusCode == 200) {
         Navigator.pop(context, true);
@@ -56,16 +55,13 @@ class _CommentModificationState extends State<CommentModification> {
   }
 
   Future<void> deleteComment() async {
-    final url = Uri.parse(
-        'http://127.0.0.1:8084/comment/delete/${widget.comment.commentId}');
-
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
 
     try {
-      final response = await http.delete(url, headers: headers);
+      final response = await CommentsServices.deleteComment(headers, widget.comment.commentId);
 
       if (response.statusCode == 200) {
         Navigator.pop(context, true);
