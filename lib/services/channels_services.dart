@@ -125,4 +125,32 @@ class ChannelsServices {
     }
     return response;
   }
+
+  static Future<http.Response> fetchChannelName(
+      Map<String, String> headers, int channelId) async {
+    http.Response response;
+    try {
+      response = await http.get(
+        Uri.parse('http://127.0.0.1:8080/channel/name/$channelId'),
+        headers: headers,
+      );
+    } catch (err) {
+      throw Error();
+    }
+    return response;
+  }
+
+  static Future<http.Response> fetchChannelCreator(
+      Map<String, String> headers, int channelId) async {
+    http.Response response;
+    try {
+      response = await http.get(
+        Uri.parse('http://127.0.0.1:8080/creator/channel/$channelId'),
+        headers: headers,
+      );
+    } catch (err) {
+      throw Error();
+    }
+    return response;
+  }
 }

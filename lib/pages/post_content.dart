@@ -13,7 +13,9 @@ import 'package:study_vault/models/comment.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:study_vault/utils/alert_service.dart';
-import 'package:http/http.dart' as http;
+import 'package:study_vault/services/comments_services.dart';
+import 'package:study_vault/services/channels_services.dart';
+import 'package:study_vault/services/users_services.dart';
 
 class PostContent extends StatefulWidget {
   final PostsResponse_PostInfo post;
@@ -79,134 +81,146 @@ class _PostContentState extends State<PostContent> {
 
   Future<void> _fetchComments() async {
     final int postId = widget.post.postId;
-    final url = Uri.parse('http://127.0.0.1:8084/comment/all/$postId');
 
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
 
-    final response = await http.get(url, headers: headers);
+    try {
+      final response = await CommentsServices.fetchComments(headers, postId);
 
-    if (response.statusCode == 200) {
-      List<dynamic> commentsJson = json.decode(utf8.decode(response.bodyBytes));
-      setState(() {
-        comments = commentsJson
-            .map((json) => Comment.fromJson(json as Map<String, dynamic>))
-            .toList();
-      });
-      for (var comment in comments) {
-        await _setUserName(comment.userId);
-        String name = _UserName;
-        userNames[comment.userId] = name;
+      if (response.statusCode == 200) {
+        List<dynamic> commentsJson = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          comments = commentsJson
+              .map((json) => Comment.fromJson(json as Map<String, dynamic>))
+              .toList();
+        });
+        for (var comment in comments) {
+          await _setUserName(comment.userId);
+          userNames[comment.userId] = _UserName;
+        }
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
       }
-    } else if (response.statusCode == 401) {
-      AlertService().showSessionExpirationAlert(context);
-    } else {
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
 
   Future<void> _setChannelName() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    String? token = userProvider.token;
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
-    final int channelId = widget.post.channelId;
-    final response = await http.get(
-        Uri.parse('http://127.0.0.1:8080/channel/name/$channelId'),
-        headers: headers);
 
-    if (response.statusCode == 200) {
-      String channelNameJson = json.decode(utf8.decode(response.bodyBytes));
-      setState(() {
-        _channelName = channelNameJson;
-      });
-    } else if (response.statusCode == 401) {
-      AlertService().showSessionExpirationAlert(context);
-    } else {
+    final int channelId = widget.post.channelId;
+    try {
+      final response = await ChannelsServices.fetchChannelName(headers, channelId);
+
+      if (response.statusCode == 200) {
+        String channelNameJson = json.decode(utf8.decode(response.bodyBytes));
+        setState(() {
+          _channelName = channelNameJson;
+        });
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
 
   Future<void> _setPostCreatorName() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    String? token = userProvider.token;
     final headers = {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
     };
     final int channelId = widget.post.channelId;
-    final response = await http.get(
-        Uri.parse('http://127.0.0.1:8080/creator/channel/$channelId'),
-        headers: headers);
 
-    if (response.statusCode == 200) {
-      int _creatorId = 0;
-      setState(() {
-        _creatorId = int.parse(response.body);
-      });
-      await _setUserName(_creatorId);
-      _postCreatorName = _UserName;
-    } else if (response.statusCode == 401) {
-      AlertService().showSessionExpirationAlert(context);
-    } else {
+    try {
+      final response = await ChannelsServices.fetchChannelCreator(headers, channelId);
+
+      if (response.statusCode == 200) {
+        int creatorId = int.parse(response.body);
+        await _setUserName(creatorId);
+        setState(() {
+          _postCreatorName = _UserName;
+        });
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
 
   Future<void> _setUserName(int userId) async {
-    final response = await http
-        .get(Uri.parse('http://127.0.0.1:8083/user/name/$userId'), headers: {
+    final headers = {
       'Content-Type': 'application/json',
       "Authorization": "Bearer $token",
-    });
+    };
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonResponse =
-          json.decode(utf8.decode(response.bodyBytes));
-      String _name = "";
-      String _last_name = "";
-      setState(() {
-        _name = jsonResponse['name'] as String;
-        _last_name = jsonResponse['last_name'] as String;
-      });
-      _UserName = '$_name $_last_name';
-    } else if (response.statusCode == 401) {
-      AlertService().showSessionExpirationAlert(context);
-    } else {
+    try {
+      final response = await UsersServices.getUserName(headers, userId);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse =
+            json.decode(utf8.decode(response.bodyBytes));
+        String name = jsonResponse['name'] as String;
+        String lastName = jsonResponse['last_name'] as String;
+
+        setState(() {
+          _UserName = '$name $lastName';
+        });
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }
 
   void _comment() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final int? userId = userProvider.userId;
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8084/comment'),
-      headers: {
-        'Content-Type': 'application/json',
-        "Authorization": "Bearer $token",
-      },
-      body: json.encode({
-        'post_id': widget.post.postId,
-        'user_id': userId,
-        'comment': _commentController.text,
-        'rating': _rating,
-      }),
-    );
+    final int userId = userProvider.userId!;
 
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Comentario guardado con éxito")),
-      );
-      _fetchComments();
-      build(context);
-    } else if (response.statusCode == 401) {
-      AlertService().showSessionExpirationAlert(context);
-    } else {
+    final headers = {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer $token",
+    };
+
+    final body = {
+      'post_id': widget.post.postId,
+      'user_id': userId,
+      'comment': _commentController.text,
+      'rating': _rating,
+    };
+
+    try {
+      final response = await CommentsServices.createComment(headers, body);
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Comentario guardado con éxito")),
+        );
+        await _fetchComments();
+        setState(() {});
+      } else if (response.statusCode == 401) {
+        AlertService().showSessionExpirationAlert(context);
+      } else {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
   }

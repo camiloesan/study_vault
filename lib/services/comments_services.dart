@@ -30,4 +30,32 @@ class CommentsServices {
     }
     return response;
   }
+
+  static Future<http.Response> fetchComments(
+      Map<String, String> headers, int postId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://127.0.0.1:8084/comment/all/$postId'),
+        headers: headers,
+      );
+      return response;
+    } catch (e) {
+      throw Error();
+    }
+  }
+
+  static Future<http.Response> createComment(
+      Map<String, String> headers, Map<String, dynamic> body) async {
+    http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse('http://127.0.0.1:8084/comment'),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+    } catch (e) {
+      throw Error();
+    }
+    return response;
+  }
 }

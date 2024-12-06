@@ -33,11 +33,7 @@ class _EditProfileState extends State<EditProfile> {
 
   void _updaterUser() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final int? userId = userProvider.userId;
-
-    if (userId == null) {
-      return;
-    }
+    final int userId = userProvider.userId!;
 
     final headers = {
       'Content-Type': 'application/json',

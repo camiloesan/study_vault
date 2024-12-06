@@ -36,11 +36,7 @@ class _ProfileState extends State<Profile> {
 
   void _deleteUser() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final int? userId = userProvider.userId;
-
-    if (userId == null) {
-      return;
-    }
+    final int userId = userProvider.userId!;
 
     final headers = {
       'Content-Type': 'application/json',
