@@ -89,19 +89,52 @@ class _ChannelContentState extends State<ChannelContent> {
                 child: ListView.separated(
                   itemCount: channelPosts.length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(channelPosts[index].title),
-                      contentPadding: const EdgeInsets.all(8.0),
-                      subtitle: Text(
-                          "${channelPosts[index].description}\nPublished on: ${channelPosts[index].publishDate}"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  PostContent(post: channelPosts[index])),
+                    return Dismissible(
+                      key: ValueKey(channelPosts[index]),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (direction) {
+                        // Save the deleted item for Snackbar if needed
+                        final deletedPost = channelPosts[index];
+
+                        setState(() {
+                          channelPosts.removeAt(index); // Remove item immediately
+                        });
+
+                        // Show a Snackbar for undo functionality (optional)
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Deleted ${deletedPost.title}"),
+                            action: SnackBarAction(
+                              label: 'UNDO',
+                              onPressed: () {
+                                setState(() {
+                                  channelPosts.insert(index, deletedPost); // Restore item
+                                });
+                              },
+                            ),
+                          ),
                         );
                       },
+                      background: Container(
+                        color: Colors.red, // Background color when swiping
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white), // Icon for delete
+                      ),
+                      child: ListTile(
+                        title: Text(channelPosts[index].title),
+                        contentPadding: const EdgeInsets.all(8.0),
+                        subtitle: Text(
+                            "${channelPosts[index].description}\nPublished on: ${channelPosts[index].publishDate}"),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    PostContent(post: channelPosts[index])),
+                          );
+                        },
+                      ),
                     );
                   },
                   separatorBuilder: (context, index) {
