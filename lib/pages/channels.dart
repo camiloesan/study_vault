@@ -259,7 +259,17 @@ class _ChannelsState extends State<Channels> {
     bool isStudent = userType == Constants.studentType;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Channels")),
+      appBar: AppBar(
+        title: const Text("Channels"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            final userProvider = Provider.of<UserProvider>(context, listen: false);
+            userProvider.logoutUser();
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: DefaultTabController(
         length: isStudent ? 2 : 3,
         child: Column(
