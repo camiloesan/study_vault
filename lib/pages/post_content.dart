@@ -16,6 +16,7 @@ import 'package:study_vault/utils/alert_service.dart';
 import 'package:study_vault/services/comments_services.dart';
 import 'package:study_vault/services/channels_services.dart';
 import 'package:study_vault/services/users_services.dart';
+import 'package:study_vault/services/posts_services.dart';
 
 class PostContent extends StatefulWidget {
   final PostsResponse_PostInfo post;
@@ -41,25 +42,15 @@ class _PostContentState extends State<PostContent> {
   String? token;
 
   Future<void> fetchGrpcData() async {
-    final channel = ClientChannel(
-      'localhost',
-      port: 8081,
-      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-    );
-    final stub = PostsServiceClient(channel);
-
     try {
-      final response =
-          await stub.getFileNameByFileId(FileId()..fileId = widget.post.fileId);
-
+      final filename =
+          await PostsServices.fetchFileNameByFileId(widget.post.fileId);
       setState(() {
-        filename = response.filename;
+        this.filename = filename;
       });
     } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
     }
-
-    await channel.shutdown();
   }
 
   void _onItemTapped(int index) {
@@ -91,7 +82,8 @@ class _PostContentState extends State<PostContent> {
       final response = await CommentsServices.fetchComments(headers, postId);
 
       if (response.statusCode == 200) {
-        List<dynamic> commentsJson = json.decode(utf8.decode(response.bodyBytes));
+        List<dynamic> commentsJson =
+            json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           comments = commentsJson
               .map((json) => Comment.fromJson(json as Map<String, dynamic>))
@@ -119,7 +111,8 @@ class _PostContentState extends State<PostContent> {
 
     final int channelId = widget.post.channelId;
     try {
-      final response = await ChannelsServices.fetchChannelName(headers, channelId);
+      final response =
+          await ChannelsServices.fetchChannelName(headers, channelId);
 
       if (response.statusCode == 200) {
         String channelNameJson = json.decode(utf8.decode(response.bodyBytes));
@@ -144,7 +137,8 @@ class _PostContentState extends State<PostContent> {
     final int channelId = widget.post.channelId;
 
     try {
-      final response = await ChannelsServices.fetchChannelCreator(headers, channelId);
+      final response =
+          await ChannelsServices.fetchChannelCreator(headers, channelId);
 
       if (response.statusCode == 200) {
         int creatorId = int.parse(response.body);
@@ -235,13 +229,7 @@ class _PostContentState extends State<PostContent> {
 
   Future<void> _downloadFile() async {
     final result = await FilePicker.platform.getDirectoryPath();
-    if (result != null) {
-      setState(() {
-        _folderPath = result;
-      });
-    }
-
-    if (_folderPath == null) {
+    if (result == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text("Por favor selecciona una carpeta primero")),
@@ -249,46 +237,16 @@ class _PostContentState extends State<PostContent> {
       return;
     }
 
-    final channel = ClientChannel(
-      'localhost',
-      port: 8081,
-      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-    );
-    final stub = PostsServiceClient(channel);
-
     try {
-      final responseStream = stub.downloadFile(FileDownloadRequest()
-        ..channelId = widget.post.channelId
-        ..fileId = widget.post.fileId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                "Descargando archivo... (esto puede tomar varios segundos)")),
-      );
-
-      final filePath = '$_folderPath/$filename';
-      final file = File(filePath);
-      final fileSink = file.openWrite();
-
-      int totalBytes = 0;
-      await for (var fileDataChunk in responseStream) {
-        totalBytes += fileDataChunk.content.length;
-        fileSink.add(fileDataChunk.content);
-        print(
-            'Recibido chunk de tamaño: ${fileDataChunk.content.length} bytes');
-      }
-
-      await fileSink.close();
-      print('Archivo descargado, tamaño total: $totalBytes bytes');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Archivo descargado en $filePath")),
+      await PostsServices.downloadFile(
+        channelId: widget.post.channelId,
+        fileId: widget.post.fileId,
+        folderPath: result,
+        filename: filename,
+        context: context,
       );
     } catch (e) {
       AlertService().showDatabaseErrorAlert(context);
-    } finally {
-      await channel.shutdown();
-      _folderPath = null;
     }
   }
 
