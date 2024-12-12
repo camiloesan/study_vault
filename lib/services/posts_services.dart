@@ -17,7 +17,7 @@ class PostsServices {
     bool isSuccess = false;
 
     final channel = ClientChannel(
-      'localhost',
+      '192.168.1.104',
       port: 8081,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
@@ -58,7 +58,7 @@ class PostsServices {
 
   static Future<String> fetchFileNameByFileId(String fileId) async {
     final channel = ClientChannel(
-      'localhost',
+      '192.168.1.104',
       port: 8081,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
@@ -83,7 +83,7 @@ class PostsServices {
     required BuildContext context,
   }) async {
     final channel = ClientChannel(
-      'localhost',
+      '192.168.1.104',
       port: 8081,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );

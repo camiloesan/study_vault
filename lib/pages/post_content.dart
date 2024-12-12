@@ -1,8 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:grpc/grpc.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/channels.dart';
@@ -39,6 +37,7 @@ class _PostContentState extends State<PostContent> {
   late List<Comment> comments = [];
   Map<int, String> userNames = {};
   late String filename = "";
+  double _average_rating = 0.0;
   String? token;
 
   Future<void> fetchGrpcData() async {
@@ -184,6 +183,26 @@ class _PostContentState extends State<PostContent> {
     }
   }
 
+  Future<void> _setRating(int postId) async {
+    final headers = {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer $token",
+    };
+
+    try {
+      final response = await CommentsServices.getAverageRating(headers, postId);
+
+      if (response.statusCode == 200) {
+        double averageRating = json.decode(utf8.decode(response.bodyBytes));
+        if (averageRating > 0) {
+          setState(() {
+            _average_rating = averageRating;
+          });
+        }
+      }
+    } catch (e) {}
+  }
+
   void _comment() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final int userId = userProvider.userId!;
@@ -208,7 +227,9 @@ class _PostContentState extends State<PostContent> {
           const SnackBar(content: Text("Comentario guardado con éxito")),
         );
         await _fetchComments();
-        setState(() {});
+        setState(() {
+          _setRating(widget.post.postId);
+        });
       } else if (response.statusCode == 401) {
         AlertService().showSessionExpirationAlert(context);
       } else {
@@ -225,6 +246,7 @@ class _PostContentState extends State<PostContent> {
       builder: (context) => CommentModification(comment: comment),
     );
     _fetchComments();
+    _setRating(widget.post.postId);
   }
 
   Future<void> _downloadFile() async {
@@ -258,6 +280,7 @@ class _PostContentState extends State<PostContent> {
     _fetchComments();
     _setChannelName();
     _setPostCreatorName();
+    _setRating(widget.post.postId);
     fetchGrpcData();
   }
 
@@ -315,6 +338,10 @@ class _PostContentState extends State<PostContent> {
                 const Text("Rating",
                     style:
                         TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text("Average: $_average_rating",
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                 const SizedBox(height: 4),
                 RatingBar.builder(
                   initialRating: 0,

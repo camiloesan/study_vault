@@ -4,7 +4,7 @@ import 'dart:convert';
 class AuthService {
   static Future<http.Response> login(
       String email, String hashedPassword) async {
-    final url = Uri.parse('http://127.0.0.1:8085/login');
+    final url = Uri.parse('http://192.168.1.104:8085/login');
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
       'email': email,
@@ -26,7 +26,7 @@ class AuthService {
     http.Response response;
     try {
       response = await http.post(
-        Uri.parse('http://127.0.0.1:8085/user/verification/request'),
+        Uri.parse('http://192.168.1.104:8085/user/verification/request'),
         headers: headers,
         body: '"$email"',
       );
@@ -41,7 +41,7 @@ class AuthService {
     http.Response response;
     try {
       response = await http.post(
-        Uri.parse('http://127.0.0.1:8085/user/verify'),
+        Uri.parse('http://192.168.1.104:8085/user/verify'),
         headers: headers,
         body: jsonEncode(body),
       );

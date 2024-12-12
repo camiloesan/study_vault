@@ -4,11 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
 
 class ChannelsServices {
-  static Future<List<PostsResponse_PostInfo>> fetchChannelPosts(int channelId) async {
+  static Future<List<PostsResponse_PostInfo>> fetchChannelPosts(
+      int channelId) async {
     List<PostsResponse_PostInfo> posts = [];
 
     final channel = ClientChannel(
-      'localhost',
+      '192.168.1.104',
       port: 8081,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
@@ -19,7 +20,7 @@ class ChannelsServices {
       final response = await stub
           .getPostsByChannelId(ChannelRequest()..channelId = channelId);
       posts = response.posts;
-    } catch(_) {
+    } catch (_) {
       throw Error();
     } finally {
       await channel.shutdown();
@@ -28,53 +29,57 @@ class ChannelsServices {
     return posts;
   }
 
-  static Future<http.Response> getChannelsByOwnerId(Map<String, String> headers, int userId) async {
+  static Future<http.Response> getChannelsByOwnerId(
+      Map<String, String> headers, int userId) async {
     http.Response ownedChannels;
     try {
       ownedChannels = await http.get(
-        Uri.parse('http://127.0.0.1:8080/channels/owner/$userId'),
+        Uri.parse('http://192.168.1.104:8080/channels/owner/$userId'),
         headers: headers,
       );
-    } catch(err) {
+    } catch (err) {
       throw Error();
     }
 
     return ownedChannels;
   }
 
-  static Future<http.Response> getSubscribedChannelsByUserId(Map<String, String> headers, int userId) async {
+  static Future<http.Response> getSubscribedChannelsByUserId(
+      Map<String, String> headers, int userId) async {
     http.Response subscribedChannels;
     try {
       subscribedChannels = await http.get(
-          Uri.parse('http://127.0.0.1:8080/subscriptions/user/$userId'),
-          headers: headers,
-        );
-    } catch(err) {
+        Uri.parse('http://192.168.1.104:8080/subscriptions/user/$userId'),
+        headers: headers,
+      );
+    } catch (err) {
       throw Error();
     }
 
     return subscribedChannels;
   }
 
-  static Future<http.Response> getAllChannels(Map<String, String> headers, int userId) async {
+  static Future<http.Response> getAllChannels(
+      Map<String, String> headers, int userId) async {
     http.Response allChannels;
     try {
       allChannels = await http.get(
-          Uri.parse('http://127.0.0.1:8080/channels/all'),
-          headers: headers,
-        );
-    } catch(err) {
+        Uri.parse('http://192.168.1.104:8080/channels/all'),
+        headers: headers,
+      );
+    } catch (err) {
       throw Error();
     }
 
     return allChannels;
   }
 
-  static Future<http.Response> createChannel(Map<String, String> headers, Map<String, dynamic> body) async {
+  static Future<http.Response> createChannel(
+      Map<String, String> headers, Map<String, dynamic> body) async {
     http.Response response;
     try {
       response = await http.post(
-        Uri.parse('http://127.0.0.1:8080/channel/create'),
+        Uri.parse('http://192.168.1.104:8080/channel/create'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -84,11 +89,12 @@ class ChannelsServices {
     return response;
   }
 
-  static Future<http.Response> fetchCategories(Map<String, String> headers) async {
+  static Future<http.Response> fetchCategories(
+      Map<String, String> headers) async {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://127.0.0.1:8080/categories/all'),
+        Uri.parse('http://192.168.1.104:8080/categories/all'),
         headers: headers,
       );
     } catch (err) {
@@ -97,12 +103,12 @@ class ChannelsServices {
     return response;
   }
 
-  static Future<http.Response> updateChannel(
-      Map<String, String> headers, Map<String, dynamic> body, int channelId) async {
+  static Future<http.Response> updateChannel(Map<String, String> headers,
+      Map<String, dynamic> body, int channelId) async {
     http.Response response;
     try {
       response = await http.put(
-        Uri.parse('http://127.0.0.1:8080/channel/update/$channelId'),
+        Uri.parse('http://192.168.1.104:8080/channel/update/$channelId'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -117,7 +123,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.delete(
-        Uri.parse('http://127.0.0.1:8080/channel/delete/$channelId'),
+        Uri.parse('http://192.168.1.104:8080/channel/delete/$channelId'),
         headers: headers,
       );
     } catch (err) {
@@ -131,7 +137,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://127.0.0.1:8080/channel/name/$channelId'),
+        Uri.parse('http://192.168.1.104:8080/channel/name/$channelId'),
         headers: headers,
       );
     } catch (err) {
@@ -145,7 +151,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://127.0.0.1:8080/creator/channel/$channelId'),
+        Uri.parse('http://192.168.1.104:8080/creator/channel/$channelId'),
         headers: headers,
       );
     } catch (err) {
