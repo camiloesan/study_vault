@@ -384,6 +384,14 @@ class _ChannelsState extends State<Channels> {
                                             .add(allChannels[index]);
                                         allChannels.remove(allChannels[index]);
                                       });
+                                    } else {
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Cannot subscribe to channel right now, try again later')),
+                                      );
                                     }
                                   },
                                   child: const Text('Subscribe')),

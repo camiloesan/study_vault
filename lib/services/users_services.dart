@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class UsersServices {
   static Future<http.Response> updatePassword(
@@ -7,7 +8,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.put(
-        Uri.parse('http://192.168.1.112:8083/password/update'),
+        Uri.parse('${dotenv.env['USERS_URL']}/password/update'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -22,7 +23,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.post(
-        Uri.parse('http://192.168.1.112:8083/register'),
+        Uri.parse('${dotenv.env['USERS_URL']}/register'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -37,7 +38,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.put(
-        Uri.parse('http://192.168.1.112:8083/update/$userId'),
+        Uri.parse('${dotenv.env['USERS_URL']}/update/$userId'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -52,7 +53,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://192.168.1.112:8083/user/name/$userId'),
+        Uri.parse('${dotenv.env['USERS_URL']}/user/name/$userId'),
         headers: headers,
       );
     } catch (e) {
@@ -66,7 +67,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.delete(
-        Uri.parse('http://192.168.1.112:8083/delete/$userId'),
+        Uri.parse('${dotenv.env['USERS_URL']}/delete/$userId'),
         headers: headers,
         body: userId.toString(),
       );
@@ -80,7 +81,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://192.168.1.112:8083/user/email/all'),
+        Uri.parse('${dotenv.env['USERS_URL']}/user/email/all'),
       );
     } catch (e) {
       throw Error();

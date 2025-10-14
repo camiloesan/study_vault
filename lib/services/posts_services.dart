@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:study_vault/src/generated/studyvault.pbgrpc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PostsServices {
   static Future<bool> uploadPost({
@@ -17,7 +18,7 @@ class PostsServices {
     bool isSuccess = false;
 
     final channel = ClientChannel(
-      '192.168.1.112',
+      '${dotenv.env['POSTS_IP']}',
       port: 8081,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
@@ -58,7 +59,7 @@ class PostsServices {
 
   static Future<String> fetchFileNameByFileId(String fileId) async {
     final channel = ClientChannel(
-      '192.168.1.112',
+      '${dotenv.env['POSTS_IP']}',
       port: 8081,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
@@ -83,7 +84,7 @@ class PostsServices {
     required BuildContext context,
   }) async {
     final channel = ClientChannel(
-      '192.168.1.112',
+      '${dotenv.env['POSTS_IP']}',
       port: 8081,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );

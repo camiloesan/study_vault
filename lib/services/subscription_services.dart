@@ -1,9 +1,10 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SubscriptionServices {
    static Future<bool> onChannelUnsubscribe(int userId, int channelId, String token) async {
-    final url = Uri.parse('http://192.168.1.112:8082/unsubscribe');
+    final url = Uri.parse('${dotenv.env['SUBSCRIPTIONS_URL']}/unsubscribe');
     late bool result = false;
     final headers = {
       "Content-Type": "application/json",
@@ -31,7 +32,7 @@ class SubscriptionServices {
   }
 
   static Future<bool> onChannelSubscribe(int userId, int channelId, String token) async {
-    final url = Uri.parse('http://192.168.1.112:8082/subscription');
+    final url = Uri.parse('${dotenv.env['SUBSCRIPTIONS_URL']}/subscription');
     late bool result = false;
     final headers = {
       "Content-Type": "application/json",
