@@ -8,8 +8,7 @@ import 'package:study_vault/services/comments_services.dart';
 
 class CommentModification extends StatefulWidget {
   final Comment comment;
-  const CommentModification({Key? key, required this.comment})
-      : super(key: key);
+  const CommentModification({super.key, required this.comment});
 
   @override
   State<CommentModification> createState() => _CommentModificationState();

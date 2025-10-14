@@ -31,7 +31,7 @@ class _PostContentState extends State<PostContent> {
   String _postCreatorName = "";
   String _UserName = "";
   int _rating = 0;
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
   String? _folderPath;
   String _channelName = "";
   late List<Comment> comments = [];
@@ -287,7 +287,7 @@ class _PostContentState extends State<PostContent> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final int? _userId = userProvider.userId;
+    final int? userId0 = userProvider.userId;
     return Scaffold(
       appBar: AppBar(title: Text(_channelName)),
       body: Center(
@@ -341,7 +341,7 @@ class _PostContentState extends State<PostContent> {
                 const SizedBox(height: 4),
                 Text("Average: $_average_rating",
                     style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
+                        const TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                 const SizedBox(height: 4),
                 RatingBar.builder(
                   initialRating: 0,
@@ -424,7 +424,7 @@ class _PostContentState extends State<PostContent> {
                             itemSize: 20.0,
                             direction: Axis.horizontal,
                           ),
-                          if (comments[index].userId == _userId)
+                          if (comments[index].userId == userId0)
                             IconButton(
                               icon: Image.asset(
                                 'assets/images/edit_icon.png',

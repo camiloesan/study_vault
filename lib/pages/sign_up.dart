@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/landing_launch.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -36,7 +35,7 @@ class _SignUpState extends State<SignUp> {
       final response = await UsersServices.registerUser(headers, body);
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Registro exitoso")),
+          const SnackBar(content: Text("Registro exitoso")),
         );
         Navigator.push(
           context,
@@ -145,7 +144,7 @@ class _SignUpState extends State<SignUp> {
                       _registerUser();
                     }
                   },
-                  child: Text(AppLocalizations.of(context)!.continueString),
+                  child: const Text("AppLocalizations.of(context)!.continueString"),
                 ),
               ],
             ),

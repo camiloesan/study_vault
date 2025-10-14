@@ -7,6 +7,7 @@ import 'package:study_vault/pages/profile.dart';
 import 'dart:convert';
 import 'package:study_vault/models/channel.dart';
 import 'package:study_vault/services/channels_services.dart';
+import 'package:study_vault/services/subscription_services.dart';
 import 'package:study_vault/utils/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/utils/user_provider.dart';
@@ -171,6 +172,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       builder: (context) => const ChannelCreation(),
     );
+    if (!mounted) return;
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     await fetchData(userProvider.userId, userProvider.userTypeId);
   }
@@ -180,6 +182,7 @@ class _ChannelsState extends State<Channels> {
       context: context,
       builder: (context) => ChannelModification(channel: channel),
     );
+    if (!mounted) return;
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     await fetchData(userProvider.userId, userProvider.userTypeId);
   }
@@ -192,62 +195,6 @@ class _ChannelsState extends State<Channels> {
             builder: (context) => ChannelContent(
                 channel: channel,
                 isChannelCreator: userProvider.userId == channel.creatorId)));
-  }
-
-  Future<bool> onChannelUnsubscribe(int userId, int channelId) async {
-    final url = Uri.parse('http://localhost:8082/unsubscribe');
-    late bool result = false;
-    final headers = {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token",
-    };
-
-    final body = jsonEncode({
-      'user_id': userId,
-      'channel_id': channelId,
-    });
-
-    try {
-      final response = await http.delete(url, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        result = true;
-      } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
-      }
-    } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
-    }
-
-    return result;
-  }
-
-  Future<bool> onChannelSubscribe(int userId, int channelId) async {
-    final url = Uri.parse('http://localhost:8082/subscription');
-    late bool result = false;
-    final headers = {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer $token",
-    };
-
-    final body = jsonEncode({
-      'user_id': userId,
-      'channel_id': channelId,
-    });
-
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        result = true;
-      } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
-      }
-    } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
-    }
-
-    return result;
   }
 
   @override
@@ -264,7 +211,8 @@ class _ChannelsState extends State<Channels> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            final userProvider = Provider.of<UserProvider>(context, listen: false);
+            final userProvider =
+                Provider.of<UserProvider>(context, listen: false);
             userProvider.logoutUser();
             Navigator.pop(context);
           },
@@ -335,8 +283,9 @@ class _ChannelsState extends State<Channels> {
                                   onPressed: () async {
                                     int channelId =
                                         allChannels[index].channelId;
-                                    bool result = await onChannelSubscribe(
-                                        userId!, channelId);
+                                    bool result = await SubscriptionServices
+                                        .onChannelSubscribe(
+                                            userId!, channelId, token!);
                                     if (result) {
                                       setState(() {
                                         subscribedChannels
@@ -426,8 +375,9 @@ class _ChannelsState extends State<Channels> {
                                   onPressed: () async {
                                     int channelId =
                                         allChannels[index].channelId;
-                                    bool result = await onChannelSubscribe(
-                                        userId!, channelId);
+                                    bool result = await SubscriptionServices
+                                        .onChannelSubscribe(
+                                            userId!, channelId, token!);
                                     if (result) {
                                       setState(() {
                                         subscribedChannels
@@ -499,7 +449,8 @@ class _ChannelsState extends State<Channels> {
 
     if (confirm == true) {
       int channelId = subscribedChannels[index].channelId;
-      bool result = await onChannelUnsubscribe(userId!, channelId);
+      bool result = await SubscriptionServices.onChannelUnsubscribe(
+          userId!, channelId, token!);
 
       if (result) {
         setState(() {

@@ -9,8 +9,7 @@ import 'package:study_vault/services/channels_services.dart';
 
 class ChannelModification extends StatefulWidget {
   final Channel channel;
-  const ChannelModification({Key? key, required this.channel})
-      : super(key: key);
+  const ChannelModification({super.key, required this.channel});
 
   @override
   State<ChannelModification> createState() => _ChannelModificationState();
@@ -190,7 +189,7 @@ class _ChannelModificationState extends State<ChannelModification> {
             TextField(
               maxLength: 32,
               controller: nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -210,7 +209,7 @@ class _ChannelModificationState extends State<ChannelModification> {
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
                 controller: descriptionController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) {
@@ -225,7 +224,7 @@ class _ChannelModificationState extends State<ChannelModification> {
             ),
             const SizedBox(height: 8.0),
             DropdownButtonFormField<Category>(
-              value: selectedCategory,
+              initialValue: selectedCategory,
               hint: const Text('Choose a category'),
               items: categories.map((category) {
                 return DropdownMenuItem<Category>(
@@ -246,7 +245,7 @@ class _ChannelModificationState extends State<ChannelModification> {
             if (_errorMessage.isNotEmpty)
               Text(
                 _errorMessage,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red,
                   fontSize: 14,
                 ),

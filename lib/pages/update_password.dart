@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/login.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -111,7 +110,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                       _updaterPassword();
                     }
                   },
-                  child: Text(AppLocalizations.of(context)!.continueString),
+                  child: const Text("AppLocalizations.of(context)!.continueString"),
                 ),
               ],
             ),

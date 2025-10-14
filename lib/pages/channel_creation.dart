@@ -114,7 +114,7 @@ class _ChannelCreationState extends State<ChannelCreation> {
             ),
             TextField(
               maxLength: 32,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -135,7 +135,7 @@ class _ChannelCreationState extends State<ChannelCreation> {
                 maxLength: 256,
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (value) {
@@ -152,7 +152,7 @@ class _ChannelCreationState extends State<ChannelCreation> {
             ),
             const SizedBox(height: 8.0),
             DropdownButtonFormField<Category>(
-              value: selectedCategory,
+              initialValue: selectedCategory,
               hint: const Text('Choose a category'),
               items: categories.map((category) {
                 return DropdownMenuItem<Category>(
@@ -173,7 +173,7 @@ class _ChannelCreationState extends State<ChannelCreation> {
             if (_errorMessage.isNotEmpty)
               Text(
                 _errorMessage,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red,
                   fontSize: 14,
                 ),

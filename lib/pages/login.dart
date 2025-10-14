@@ -41,26 +41,20 @@ class _LoginState extends State<Login> {
         String email = jsonResponse['email'];
         String? token = response.headers['x-token'];
 
-        if (token != null) {
-          Provider.of<UserProvider>(context, listen: false).loginUser(
-            userId,
-            userTypeId,
-            name,
-            lastName,
-            email,
-            token,
-          );
+        Provider.of<UserProvider>(context, listen: false).loginUser(
+          userId,
+          userTypeId,
+          name,
+          lastName,
+          email,
+          token!,
+        );
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Channels()),
-          );
-        } else {
-          setState(() {
-            _errorMessage = 'Token not received from server';
-          });
-        }
-      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const Channels()),
+        );
+            } else {
         setState(() {
           _errorMessage = 'Invalid email or password';
         });
@@ -87,8 +81,8 @@ class _LoginState extends State<Login> {
                 ),
               ),
               const SizedBox(height: 10),
-              Center(
-                child: const Text(
+              const Center(
+                child: Text(
                   'Log in',
                   style: TextStyle(
                     fontSize: 20,
@@ -148,7 +142,7 @@ class _LoginState extends State<Login> {
               Center(
                 child: Text(
                   _errorMessage,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.red,
                     fontSize: 14,
                   ),

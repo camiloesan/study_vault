@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/sign_up.dart';
 import 'package:study_vault/services/users_services.dart';
 import 'dart:convert';
@@ -87,11 +86,11 @@ class _EmailVerificationState extends State<EmailVerification> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Align(
+                const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    AppLocalizations.of(context)!.emailRequestInfo,
-                    style: const TextStyle(
+                    "Enter your email",
+                    style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -100,7 +99,7 @@ class _EmailVerificationState extends State<EmailVerification> {
                   controller: _emailController,
                   decoration: const InputDecoration(
                     border: UnderlineInputBorder(),
-                    labelText: 'Ingresa tu correo',
+                    labelText: 'user@example.com',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -122,7 +121,7 @@ class _EmailVerificationState extends State<EmailVerification> {
                       _checkEmailExists(_emailController.text);
                     }
                   },
-                  child: Text(AppLocalizations.of(context)!.continueString),
+                  child: const Text("Continue"),
                 ),
               ],
             ),

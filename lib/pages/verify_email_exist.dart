@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/services/auth_services.dart';
 import 'package:study_vault/services/users_services.dart';
 import 'dart:convert';
@@ -150,10 +149,10 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Align(
+                const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    AppLocalizations.of(context)!.emailRequestInfo,
+                    "AppLocalizations.of(context)!.emailRequestInfo",
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600),
                   ),
@@ -171,7 +170,7 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
                   onPressed: () {
                     _checkEmailExists(_emailController.text);
                   },
-                  child: Text(AppLocalizations.of(context)!.continueString),
+                  child: const Text("AppLocalizations.of(context)!.continueString"),
                 ),
               ],
             ),

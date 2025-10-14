@@ -7,7 +7,7 @@ class CommentsServices {
     http.Response response;
     try {
       response = await http.put(
-        Uri.parse('http://192.168.1.104:8084/comment/update/$commentId'),
+        Uri.parse('http://192.168.1.112:8084/comment/update/$commentId'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -22,7 +22,7 @@ class CommentsServices {
     http.Response response;
     try {
       response = await http.delete(
-        Uri.parse('http://192.168.1.104:8084/comment/delete/$commentId'),
+        Uri.parse('http://192.168.1.112:8084/comment/delete/$commentId'),
         headers: headers,
       );
     } catch (e) {
@@ -35,7 +35,7 @@ class CommentsServices {
       Map<String, String> headers, int postId) async {
     try {
       final response = await http.get(
-        Uri.parse('http://192.168.1.104:8084/comment/all/$postId'),
+        Uri.parse('http://192.168.1.112:8084/comment/all/$postId'),
         headers: headers,
       );
       return response;
@@ -49,7 +49,7 @@ class CommentsServices {
     http.Response response;
     try {
       response = await http.post(
-        Uri.parse('http://192.168.1.104:8084/comment'),
+        Uri.parse('http://192.168.1.112:8084/comment'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -64,7 +64,7 @@ class CommentsServices {
     http.Response response;
     try {
       response = await http.get(
-          Uri.parse('http://192.168.1.104:8084/rating/$postId'),
+          Uri.parse('http://192.168.1.112:8084/rating/$postId'),
           headers: headers);
     } catch (e) {
       throw Error();

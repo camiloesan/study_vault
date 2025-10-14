@@ -21,7 +21,7 @@ class _ChangePasswordState extends State<ChangePassword> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
     if (index == 0) {

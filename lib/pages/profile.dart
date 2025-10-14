@@ -22,7 +22,7 @@ class _ProfileState extends State<Profile> {
   int? _userType = 0;
   bool _isStudent = false;
   String? _userEmail = "";
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
   String? token;
 
   void _onItemTapped(int index) {
@@ -172,7 +172,7 @@ class _ProfileState extends State<Profile> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ChangePassword()),
+                            builder: (context) => const ChangePassword()),
                       );
                     },
                     child: const Text("Change Password"),

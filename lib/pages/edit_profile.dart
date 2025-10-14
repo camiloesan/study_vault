@@ -19,7 +19,7 @@ class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _nameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
   String? token;
 
   void _onItemTapped(int index) {
@@ -79,16 +79,16 @@ class _EditProfileState extends State<EditProfile> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        String _name = jsonResponse['name'] as String;
-        String _last_name = jsonResponse['last_name'] as String;
+        String name = jsonResponse['name'] as String;
+        String last_name = jsonResponse['last_name'] as String;
 
         setState(() {
-          _name = _name;
-          _last_name = _last_name;
+          name = name;
+          last_name = last_name;
         });
 
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateUserInfo(_name, _last_name);
+        userProvider.updateUserInfo(name, last_name);
 
         Navigator.push(
           context,

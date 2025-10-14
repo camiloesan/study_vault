@@ -9,7 +9,7 @@ class ChannelsServices {
     List<PostsResponse_PostInfo> posts = [];
 
     final channel = ClientChannel(
-      '192.168.1.104',
+      '192.168.1.112',
       port: 8081,
       options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
@@ -34,7 +34,7 @@ class ChannelsServices {
     http.Response ownedChannels;
     try {
       ownedChannels = await http.get(
-        Uri.parse('http://192.168.1.104:8080/channels/owner/$userId'),
+        Uri.parse('http://192.168.1.112:8080/channels/owner/$userId'),
         headers: headers,
       );
     } catch (err) {
@@ -49,7 +49,7 @@ class ChannelsServices {
     http.Response subscribedChannels;
     try {
       subscribedChannels = await http.get(
-        Uri.parse('http://192.168.1.104:8080/subscriptions/user/$userId'),
+        Uri.parse('http://192.168.1.112:8080/subscriptions/user/$userId'),
         headers: headers,
       );
     } catch (err) {
@@ -64,7 +64,7 @@ class ChannelsServices {
     http.Response allChannels;
     try {
       allChannels = await http.get(
-        Uri.parse('http://192.168.1.104:8080/channels/all'),
+        Uri.parse('http://192.168.1.112:8080/channels/all'),
         headers: headers,
       );
     } catch (err) {
@@ -79,7 +79,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.post(
-        Uri.parse('http://192.168.1.104:8080/channel/create'),
+        Uri.parse('http://192.168.1.112:8080/channel/create'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -94,7 +94,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://192.168.1.104:8080/categories/all'),
+        Uri.parse('http://192.168.1.112:8080/categories/all'),
         headers: headers,
       );
     } catch (err) {
@@ -108,7 +108,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.put(
-        Uri.parse('http://192.168.1.104:8080/channel/update/$channelId'),
+        Uri.parse('http://192.168.1.112:8080/channel/update/$channelId'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -123,7 +123,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.delete(
-        Uri.parse('http://192.168.1.104:8080/channel/delete/$channelId'),
+        Uri.parse('http://192.168.1.112:8080/channel/delete/$channelId'),
         headers: headers,
       );
     } catch (err) {
@@ -137,7 +137,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://192.168.1.104:8080/channel/name/$channelId'),
+        Uri.parse('http://192.168.1.112:8080/channel/name/$channelId'),
         headers: headers,
       );
     } catch (err) {
@@ -151,7 +151,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://192.168.1.104:8080/creator/channel/$channelId'),
+        Uri.parse('http://192.168.1.112:8080/creator/channel/$channelId'),
         headers: headers,
       );
     } catch (err) {

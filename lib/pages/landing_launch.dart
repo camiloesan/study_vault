@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_vault/pages/email_verification.dart';
 import 'package:study_vault/pages/login.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/pages/verify_email_exist.dart';
 
 class LandingLaunch extends StatelessWidget {
@@ -30,9 +29,9 @@ class LandingLaunch extends StatelessWidget {
                     ),
                   );
                 },
-                child: Text(
-                  AppLocalizations.of(context)!.signUp,
-                  style: const TextStyle(fontSize: 16),
+                child: const Text(
+                  "Sign Up",
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ),
@@ -48,9 +47,9 @@ class LandingLaunch extends StatelessWidget {
                     ),
                   );
                 },
-                child: Text(
-                  AppLocalizations.of(context)!.logIn,
-                  style: const TextStyle(fontSize: 16),
+                child: const Text(
+                  "Log In",
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ),

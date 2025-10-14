@@ -7,7 +7,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.put(
-        Uri.parse('http://192.168.1.104:8083/password/update'),
+        Uri.parse('http://192.168.1.112:8083/password/update'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -22,7 +22,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.post(
-        Uri.parse('http://192.168.1.104:8083/register'),
+        Uri.parse('http://192.168.1.112:8083/register'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -37,7 +37,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.put(
-        Uri.parse('http://192.168.1.104:8083/update/$userId'),
+        Uri.parse('http://192.168.1.112:8083/update/$userId'),
         headers: headers,
         body: jsonEncode(body),
       );
@@ -52,7 +52,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://192.168.1.104:8083/user/name/$userId'),
+        Uri.parse('http://192.168.1.112:8083/user/name/$userId'),
         headers: headers,
       );
     } catch (e) {
@@ -66,7 +66,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.delete(
-        Uri.parse('http://192.168.1.104:8083/delete/$userId'),
+        Uri.parse('http://192.168.1.112:8083/delete/$userId'),
         headers: headers,
         body: userId.toString(),
       );
@@ -80,7 +80,7 @@ class UsersServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('http://192.168.1.104:8083/user/email/all'),
+        Uri.parse('http://192.168.1.112:8083/user/email/all'),
       );
     } catch (e) {
       throw Error();

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_vault/pages/landing_launch.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:study_vault/utils/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +23,6 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
 
       localizationsDelegates: const [
-        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
