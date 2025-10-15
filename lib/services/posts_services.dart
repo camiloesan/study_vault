@@ -104,13 +104,17 @@ class PostsServices {
       }
 
       await fileSink.close();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Archivo descargado en $filePath")),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Archivo descargado en $filePath")),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error al descargar el archivo")),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Error al descargar el archivo")),
+        );
+      }
       rethrow;
     } finally {
       await channel.shutdown();

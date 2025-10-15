@@ -34,10 +34,14 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
       if (response.statusCode == 200) {
         _showVerificationCodeDialog();
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -75,17 +79,24 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
       final response = await AuthService.verifyCode(headers, body);
 
       if (response.statusCode == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => UpdatePassword(email: _emailController.text),
-          ),
-        );
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  UpdatePassword(email: _emailController.text),
+            ),
+          );
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -96,11 +107,15 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
         List<dynamic> emails = jsonDecode(response.body);
         return emails.cast<String>();
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
         throw Exception('Error al obtener los correos');
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
       throw Exception('Error al obtener los correos');
     }
   }
@@ -114,7 +129,9 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
         _showEmailExistsAlert();
       }
     } catch (error) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -153,7 +170,7 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "AppLocalizations.of(context)!.emailRequestInfo",
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -170,7 +187,8 @@ class _VerifyEmailExistState extends State<VerifyEmailExist> {
                   onPressed: () {
                     _checkEmailExists(_emailController.text);
                   },
-                  child: const Text("AppLocalizations.of(context)!.continueString"),
+                  child: const Text(
+                      "AppLocalizations.of(context)!.continueString"),
                 ),
               ],
             ),

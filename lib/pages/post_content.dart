@@ -29,15 +29,15 @@ class _PostContentState extends State<PostContent> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _commentController = TextEditingController();
   String _postCreatorName = "";
-  String _UserName = "";
+  String userName = "";
   int _rating = 0;
   final int _selectedIndex = 1;
-  String? _folderPath;
+  String? folderPath;
   String _channelName = "";
   late List<Comment> comments = [];
   Map<int, String> userNames = {};
   late String filename = "";
-  double _average_rating = 0.0;
+  double averageRating = 0.0;
   String? token;
 
   Future<void> fetchGrpcData() async {
@@ -48,7 +48,9 @@ class _PostContentState extends State<PostContent> {
         this.filename = filename;
       });
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -90,15 +92,21 @@ class _PostContentState extends State<PostContent> {
         });
         for (var comment in comments) {
           await _setUserName(comment.userId);
-          userNames[comment.userId] = _UserName;
+          userNames[comment.userId] = userName;
         }
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -119,12 +127,18 @@ class _PostContentState extends State<PostContent> {
           _channelName = channelNameJson;
         });
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      } 
     }
   }
 
@@ -143,15 +157,21 @@ class _PostContentState extends State<PostContent> {
         int creatorId = int.parse(response.body);
         await _setUserName(creatorId);
         setState(() {
-          _postCreatorName = _UserName;
+          _postCreatorName = userName;
         });
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        } 
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -171,15 +191,21 @@ class _PostContentState extends State<PostContent> {
         String lastName = jsonResponse['last_name'] as String;
 
         setState(() {
-          _UserName = '$name $lastName';
+          userName = '$name $lastName';
         });
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -196,11 +222,15 @@ class _PostContentState extends State<PostContent> {
         double averageRating = json.decode(utf8.decode(response.bodyBytes));
         if (averageRating > 0) {
           setState(() {
-            _average_rating = averageRating;
+            this.averageRating = averageRating;
           });
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
+    }
   }
 
   void _comment() async {
@@ -223,20 +253,28 @@ class _PostContentState extends State<PostContent> {
       final response = await CommentsServices.createComment(headers, body);
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Comentario guardado con éxito")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Comentario guardado con éxito")),
+          );
+        }
         await _fetchComments();
         setState(() {
           _setRating(widget.post.postId);
         });
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -252,23 +290,29 @@ class _PostContentState extends State<PostContent> {
   Future<void> _downloadFile() async {
     final result = await FilePicker.platform.getDirectoryPath();
     if (result == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text("Por favor selecciona una carpeta primero")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Por favor selecciona una carpeta primero")),
+        );
+      }
       return;
     }
 
     try {
-      await PostsServices.downloadFile(
-        channelId: widget.post.channelId,
-        fileId: widget.post.fileId,
-        folderPath: result,
-        filename: filename,
-        context: context,
-      );
+      if (mounted) {
+        await PostsServices.downloadFile(
+          channelId: widget.post.channelId,
+          fileId: widget.post.fileId,
+          folderPath: result,
+          filename: filename,
+          context: context,
+        );
+      }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -339,7 +383,7 @@ class _PostContentState extends State<PostContent> {
                     style:
                         TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text("Average: $_average_rating",
+                Text("Average: $averageRating",
                     style:
                         const TextStyle(fontSize: 16, fontWeight: FontWeight.normal)),
                 const SizedBox(height: 4),

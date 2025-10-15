@@ -50,17 +50,25 @@ class _EditProfileState extends State<EditProfile> {
       final response = await UsersServices.updateUser(headers, body, userId);
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Profile updated")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Profile updated")),
+          );
+        }
         _setUserName(userId);
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -80,27 +88,34 @@ class _EditProfileState extends State<EditProfile> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         String name = jsonResponse['name'] as String;
-        String last_name = jsonResponse['last_name'] as String;
+        String lastName = jsonResponse['last_name'] as String;
 
         setState(() {
           name = name;
-          last_name = last_name;
+          lastName = lastName;
         });
 
+        if (!mounted) return;
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateUserInfo(name, last_name);
+        userProvider.updateUserInfo(name, lastName);
 
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const Profile()),
         );
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 

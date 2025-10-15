@@ -25,27 +25,33 @@ class _SignUpState extends State<SignUp> {
   void _registerUser() async {
     final headers = {'Content-Type': 'application/json'};
     final body = {
-        'email': widget.email,
-        'name': _nameController.text,
-        'last_name': _lastNameController.text,
-        'password': _hashPassword(_passwordController.text),
+      'email': widget.email,
+      'name': _nameController.text,
+      'last_name': _lastNameController.text,
+      'password': _hashPassword(_passwordController.text),
     };
-    
+
     try {
       final response = await UsersServices.registerUser(headers, body);
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Registro exitoso")),
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LandingLaunch()),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Registro exitoso")),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LandingLaunch()),
+          );
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -144,7 +150,8 @@ class _SignUpState extends State<SignUp> {
                       _registerUser();
                     }
                   },
-                  child: const Text("AppLocalizations.of(context)!.continueString"),
+                  child: const Text(
+                      "AppLocalizations.of(context)!.continueString"),
                 ),
               ],
             ),

@@ -42,14 +42,20 @@ class _ChannelCreationState extends State<ChannelCreation> {
               .toList();
         });
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error to fetch categories")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Error to fetch categories")),
+          );
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -70,19 +76,27 @@ class _ChannelCreationState extends State<ChannelCreation> {
       final response = await ChannelsServices.createChannel(headers, body);
 
       if (response.statusCode == 200) {
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Channel created successfully!')),
-        );
+        if (mounted) {
+          Navigator.pop(context, true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Channel created successfully!')),
+          );
+        }
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error to create channel")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Error to create channel")),
+          );
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 

@@ -46,22 +46,30 @@ class _ChangePasswordState extends State<ChangePassword> {
       final response = await UsersServices.updatePassword(headers, body);
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Password updated")),
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Profile()),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Password updated")),
+          );
+        }
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Profile()),
+          );
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text("Error al actualizarse, intenta con otra contraseña")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content:
+                    Text("Error al actualizarse, intenta con otra contraseña")),
+          );
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 

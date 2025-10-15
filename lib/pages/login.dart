@@ -41,6 +41,7 @@ class _LoginState extends State<Login> {
         String email = jsonResponse['email'];
         String? token = response.headers['x-token'];
 
+        if (!mounted) return;
         Provider.of<UserProvider>(context, listen: false).loginUser(
           userId,
           userTypeId,
@@ -60,7 +61,9 @@ class _LoginState extends State<Login> {
         });
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 

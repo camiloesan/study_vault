@@ -36,19 +36,25 @@ class _CommentModificationState extends State<CommentModification> {
       final response = await CommentsServices.updateComment(headers, body, widget.comment.commentId);
 
       if (response.statusCode == 200) {
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Comment updated successfully!')),
-        );
+        if (mounted) {
+          Navigator.pop(context, true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Comment updated successfully!')),
+          );
+        }
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
         setState(() {
           _errorMessage = 'Failed to update comment';
         });
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -62,19 +68,25 @@ class _CommentModificationState extends State<CommentModification> {
       final response = await CommentsServices.deleteComment(headers, widget.comment.commentId);
 
       if (response.statusCode == 200) {
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Comment deleted successfully!')),
-        );
+        if (mounted) {
+          Navigator.pop(context, true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Comment deleted successfully!')),
+          );
+        }
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
         setState(() {
           _errorMessage = 'Failed to delete comment';
         });
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 

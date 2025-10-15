@@ -28,11 +28,15 @@ class _EmailVerificationState extends State<EmailVerification> {
         List<dynamic> emails = jsonDecode(response.body);
         return emails.cast<String>();
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
         throw Exception('Error al obtener los correos');
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
       throw Exception('Error al obtener los correos');
     }
   }
@@ -43,15 +47,19 @@ class _EmailVerificationState extends State<EmailVerification> {
       if (emails.contains(email)) {
         _showEmailExistsAlert();
       } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SignUp(email: email),
-          ),
-        );
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SignUp(email: email),
+            ),
+          );
+        }
       }
     } catch (error) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -90,8 +98,7 @@ class _EmailVerificationState extends State<EmailVerification> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Enter your email",
-                    style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
                 const SizedBox(height: 10),

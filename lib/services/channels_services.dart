@@ -95,7 +95,7 @@ class ChannelsServices {
     http.Response response;
     try {
       response = await http.get(
-        Uri.parse('${dotenv.env['CATEGORIES_URL']}/all'),
+        Uri.parse('${dotenv.env['CHANNELS_URL']}/categories/all'),
         headers: headers,
       );
     } catch (err) {

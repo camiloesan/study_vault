@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:study_vault/pages/Change_password.dart';
-import 'package:study_vault/pages/channels.dart';
 import 'package:study_vault/pages/edit_profile.dart';
 import 'package:study_vault/pages/landing_launch.dart';
 import 'package:study_vault/utils/alert_service.dart';
@@ -25,15 +24,6 @@ class _ProfileState extends State<Profile> {
   final int _selectedIndex = 1;
   String? token;
 
-  void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Channels()),
-      );
-    }
-  }
-
   void _deleteUser() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final int userId = userProvider.userId!;
@@ -47,21 +37,31 @@ class _ProfileState extends State<Profile> {
       final response = await UsersServices.deleteUser(headers, userId);
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Account deleted")),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Account deleted")),
+          );
+        }
         userProvider.logoutUser();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LandingLaunch()),
-        );
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LandingLaunch()),
+          );
+        }
       } else if (response.statusCode == 401) {
-        AlertService().showSessionExpirationAlert(context);
+        if (mounted) {
+          AlertService().showSessionExpirationAlert(context);
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -196,7 +196,6 @@ class _ProfileState extends State<Profile> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.collections_bookmark_outlined),

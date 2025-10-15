@@ -32,18 +32,24 @@ class _UpdatePasswordState extends State<UpdatePassword> {
     try {
       final response = await UsersServices.updatePassword(headers, body);
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Password updated")),
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Login()),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Password updated")),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Login()),
+          );
+        }
       } else {
-        AlertService().showDatabaseErrorAlert(context);
+        if (mounted) {
+          AlertService().showDatabaseErrorAlert(context);
+        }
       }
     } catch (e) {
-      AlertService().showDatabaseErrorAlert(context);
+      if (mounted) {
+        AlertService().showDatabaseErrorAlert(context);
+      }
     }
   }
 
@@ -110,7 +116,8 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                       _updaterPassword();
                     }
                   },
-                  child: const Text("AppLocalizations.of(context)!.continueString"),
+                  child: const Text(
+                      "AppLocalizations.of(context)!.continueString"),
                 ),
               ],
             ),
